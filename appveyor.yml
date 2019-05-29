@@ -53,7 +53,7 @@ test_script:
   - "cuckoo.exe -d"
   - "cuckoo.exe community"
   - "cuckoo.exe -d || dir >NUL"
-  - "pytest.exe -v --cov=cuckoo"
+  - "pytest.exe -v --capture=no --cov=cuckoo"
 
 after_test:
   - "codecov.exe"
