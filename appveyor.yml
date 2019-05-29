@@ -1,3 +1,6 @@
+image:
+- Visual Studio 2015
+- Visual Studio 2017
 environment:
   matrix:
     - PYTHON: "C:/Python27"
@@ -50,7 +53,7 @@ test_script:
   - "cuckoo.exe -d"
   - "cuckoo.exe community"
   - "cuckoo.exe -d || dir >NUL"
-  - "pytest.exe --cov=cuckoo"
+  - "pytest.exe -v --cov=cuckoo"
 
 after_test:
   - "codecov.exe"
