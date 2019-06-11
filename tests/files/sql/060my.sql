@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 5.5.53, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: cuckootest060
+-- Host: localhost    Database: cuckoo
 -- ------------------------------------------------------
--- Server version	5.7.26-0ubuntu0.18.04.1
+-- Server version	5.5.53-0ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -29,7 +29,7 @@ CREATE TABLE `errors` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `task_id` (`task_id`),
   CONSTRAINT `errors_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -91,7 +91,7 @@ CREATE TABLE `machines` (
   `status` varchar(255) DEFAULT NULL,
   `status_changed_on` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +100,8 @@ CREATE TABLE `machines` (
 
 LOCK TABLES `machines` WRITE;
 /*!40000 ALTER TABLE `machines` DISABLE KEYS */;
-INSERT INTO `machines` VALUES (2,'cuckoo1','cuckoo7','192.168.56.101','windows',1,'2016-11-17 02:45:17','poweroff','2016-11-17 02:46:44'),(3,'cuckoo2','cuckoo8','192.168.56.102','windows',1,NULL,'poweroff',NULL);
+INSERT INTO `machines` VALUES (2,'cuckoo1','cuckoo7','192.168.56.101','windows',1,'2016-11-17 02:45:17','poweroff','2016-11-17 02:46:44');
+INSERT INTO `machines` VALUES (3,'cuckoo2','cuckoo8','192.168.56.102','windows',1,null,'poweroff',null);
 /*!40000 ALTER TABLE `machines` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -173,7 +174,10 @@ CREATE TABLE `tasks` (
 
 LOCK TABLES `tasks` WRITE;
 /*!40000 ALTER TABLE `tasks` DISABLE KEYS */;
-INSERT INTO `tasks` VALUES (1,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:42:58','2016-11-17 02:43:02','2016-11-17 02:45:17','success',1),(2,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:42:59','2016-11-17 02:45:17',NULL,'processing',1),(3,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:46:53',NULL,NULL,'pending',1);
+INSERT INTO `tasks` VALUES (1,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:42:58','2016-11-17 02:43:02','2016-11-17 02:45:17','success',1);
+INSERT INTO `tasks` VALUES (2,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:42:59','2016-11-17 02:45:17',NULL,'processing',1);
+INSERT INTO `tasks` VALUES (3,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2016-11-17 02:46:53',NULL,NULL,'pending',1);
+
 /*!40000 ALTER TABLE `tasks` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -186,4 +190,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-11 23:58:18
+-- Dump completed on 2016-11-17  2:47:52

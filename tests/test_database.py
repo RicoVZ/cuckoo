@@ -296,6 +296,13 @@ class DatabaseMigrationEngine(object):
         cls.s = cls.d.Session()
         cls.execute_script(cls, open(cls.SRC, "rb").read())
         cls.migrate(cls)
+        cls.s.close()
+
+    def setup(self):
+        self.s = self.d.Session()
+
+    def teardown(self):
+        self.s.close()
 
     def test_alembic_version(self):
         version = self.s.execute(
@@ -430,7 +437,7 @@ class TestDatabaseMigration060MySQL(DatabaseMigration060):
 
     @staticmethod
     def execute_script(cls, script):
-        cls.s.execute(script)
+        cls.d.engine.execute(script)
         cls.s.commit()
 
     @staticmethod
@@ -511,7 +518,7 @@ class TestDatabaseMigration11MySQL(DatabaseMigration11):
 
     @staticmethod
     def execute_script(cls, script):
-        cls.s.execute(script)
+        cls.d.engine.execute(script)
         cls.s.commit()
 
 @mock.patch("cuckoo.core.database.create_engine")

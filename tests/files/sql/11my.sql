@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.7.26, for Linux (x86_64)
+-- MySQL dump 10.14  Distrib 5.5.47-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: cuckootest11
+-- Host: localhost    Database: cuckoo11
 -- ------------------------------------------------------
--- Server version	5.7.26-0ubuntu0.18.04.1
+-- Server version	5.5.47-MariaDB-1ubuntu0.14.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,7 +34,7 @@ CREATE TABLE `alembic_version` (
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('796174689511');
+INSERT INTO `alembic_version` VALUES ('263a45963c72');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -47,7 +47,7 @@ DROP TABLE IF EXISTS `errors`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `errors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `message` text,
+  `message` varchar(255) NOT NULL,
   `task_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `task_id` (`task_id`),
@@ -79,7 +79,6 @@ CREATE TABLE `guests` (
   `started_on` datetime NOT NULL,
   `shutdown_on` datetime DEFAULT NULL,
   `task_id` int(11) NOT NULL,
-  `status` varchar(16) NOT NULL DEFAULT 'stopped',
   PRIMARY KEY (`id`),
   UNIQUE KEY `task_id` (`task_id`),
   CONSTRAINT `guests_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `tasks` (`id`)
@@ -92,7 +91,7 @@ CREATE TABLE `guests` (
 
 LOCK TABLES `guests` WRITE;
 /*!40000 ALTER TABLE `guests` DISABLE KEYS */;
-INSERT INTO `guests` VALUES (1,'cuckoo1','cuckoo1','VirtualBox','2017-02-07 12:40:30','2017-02-07 12:40:49',1,'stopped');
+INSERT INTO `guests` VALUES (1,'cuckoo1','cuckoo1','VirtualBox','2017-02-07 12:40:30','2017-02-07 12:40:49',1);
 /*!40000 ALTER TABLE `guests` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -116,8 +115,7 @@ CREATE TABLE `machines` (
   `status` varchar(255) DEFAULT NULL,
   `status_changed_on` datetime DEFAULT NULL,
   `resultserver_ip` varchar(255) NOT NULL,
-  `options` varchar(255) DEFAULT NULL,
-  `resultserver_port` int(11) DEFAULT NULL,
+  `resultserver_port` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -128,7 +126,7 @@ CREATE TABLE `machines` (
 
 LOCK TABLES `machines` WRITE;
 /*!40000 ALTER TABLE `machines` DISABLE KEYS */;
-INSERT INTO `machines` VALUES (1,'cuckoo1','cuckoo1','192.168.56.101','windows',NULL,NULL,0,'2017-02-07 12:40:49','poweroff','2017-02-07 12:40:49','192.168.56.1',NULL,2042);
+INSERT INTO `machines` VALUES (1,'cuckoo1','cuckoo1','192.168.56.101','windows',NULL,NULL,0,'2017-02-07 12:40:49','poweroff','2017-02-07 12:40:49','192.168.56.1','2042');
 /*!40000 ALTER TABLE `machines` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -168,16 +166,16 @@ DROP TABLE IF EXISTS `samples`;
 CREATE TABLE `samples` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `file_size` int(11) NOT NULL,
-  `file_type` text NOT NULL,
+  `file_type` varchar(255) NOT NULL,
   `md5` varchar(32) NOT NULL,
   `crc32` varchar(8) NOT NULL,
   `sha1` varchar(40) NOT NULL,
   `sha256` varchar(64) NOT NULL,
   `sha512` varchar(128) NOT NULL,
-  `ssdeep` text,
+  `ssdeep` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `hash_index` (`md5`,`crc32`,`sha1`,`sha256`,`sha512`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -188,32 +186,6 @@ LOCK TABLES `samples` WRITE;
 /*!40000 ALTER TABLE `samples` DISABLE KEYS */;
 INSERT INTO `samples` VALUES (1,2048,'PE32 executable (GUI) Intel 80386 (stripped to external PDB), for MS Windows','e1590ab0ba8fa41b4b8396a7b8370154','C56B25A6','3f3617b860e16f02fc3434c511d37efc3b2db75a','212153e5e27996d1dd7d9e01921781cf6d9426aba552017ec5e30714b61e9981','3ccc2ff27b10a0b6722e98595f47fb41ff1bf5af91ade424834b00e1dae7114de8a314ebdbdc9683a2347949fb1140b8f41382800af205d47e8ce1a7803d971d',NULL);
 /*!40000 ALTER TABLE `samples` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `submit`
---
-
-DROP TABLE IF EXISTS `submit`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `submit` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `tmp_path` text,
-  `added` datetime NOT NULL,
-  `submit_type` varchar(16) DEFAULT NULL,
-  `data` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `submit`
---
-
-LOCK TABLES `submit` WRITE;
-/*!40000 ALTER TABLE `submit` DISABLE KEYS */;
-/*!40000 ALTER TABLE `submit` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -249,7 +221,7 @@ DROP TABLE IF EXISTS `tasks`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tasks` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `target` varchar(255) NOT NULL,
+  `target` text NOT NULL,
   `category` varchar(255) NOT NULL,
   `timeout` int(11) NOT NULL DEFAULT '0',
   `priority` int(11) NOT NULL DEFAULT '1',
@@ -264,11 +236,8 @@ CREATE TABLE `tasks` (
   `added_on` datetime NOT NULL,
   `started_on` datetime DEFAULT NULL,
   `completed_on` datetime DEFAULT NULL,
-  `status` enum('pending','running','completed','reported','recovered','failed_analysis','failed_processing','failed_reporting') NOT NULL DEFAULT 'pending',
+  `status` enum('pending','running','completed','reported','recovered') NOT NULL DEFAULT 'pending',
   `sample_id` int(11) DEFAULT NULL,
-  `owner` varchar(64) DEFAULT NULL,
-  `processing` varchar(16) DEFAULT NULL,
-  `route` varchar(16) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `sample_id` (`sample_id`),
   CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`sample_id`) REFERENCES `samples` (`id`)
@@ -281,7 +250,7 @@ CREATE TABLE `tasks` (
 
 LOCK TABLES `tasks` WRITE;
 /*!40000 ALTER TABLE `tasks` DISABLE KEYS */;
-INSERT INTO `tasks` VALUES (1,'/tmp/msgbox.exe','file',0,1,'custom1','','','human=1','',0,0,'2017-02-07 12:40:24','2017-02-07 12:40:24','2017-02-07 12:40:30','2017-02-07 12:40:49','reported',1,NULL,NULL,NULL),(2,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2017-02-07 12:41:07','2017-02-07 12:41:07',NULL,NULL,'pending',1,NULL,NULL,NULL);
+INSERT INTO `tasks` VALUES (1,'/tmp/msgbox.exe','file',0,1,'custom1','','','human=1','',0,0,'2017-02-07 12:40:24','2017-02-07 12:40:24','2017-02-07 12:40:30','2017-02-07 12:40:49','reported',1),(2,'/tmp/msgbox.exe','file',0,1,'','','','','',0,0,'2017-02-07 12:41:07','2017-02-07 12:41:07',NULL,NULL,'pending',1);
 /*!40000 ALTER TABLE `tasks` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -320,4 +289,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-06-12  0:00:12
+-- Dump completed on 2017-02-07 12:41:40
