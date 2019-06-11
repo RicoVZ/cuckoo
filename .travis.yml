@@ -17,7 +17,7 @@ before_install:
   - |
     if [[ $TRAVIS_OS_NAME == "linux" ]]; then
         sudo apt-get update -qq
-        sudo apt-get install sqlite3 python-dev python-libvirt libffi-dev libssl-dev
+        sudo apt-get install python-dev python-libvirt libffi-dev libssl-dev
         sudo apt-get install swig libpq-dev libmysqlclient-dev rar
         sudo apt-get install libcairo2-dev libpng-dev libossp-uuid-dev
         sudo apt-get install libfreerdp-dev libjpeg-turbo8-dev
@@ -98,9 +98,9 @@ after_success:
   - coveralls
   - codecov
 
-#addons:
-#  apt:
-#    packages:
-#    - sqlite3
-#    sources:
-#    - travis-ci/sqlite3
+addons:
+  apt:
+    packages:
+    - sqlite3
+    sources:
+    - travis-ci/sqlite3
