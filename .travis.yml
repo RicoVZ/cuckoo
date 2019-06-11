@@ -98,7 +98,6 @@ after_success:
   - coveralls
   - codecov
 
-dist: xenial
 #addons:
 #  apt:
 #    packages:
