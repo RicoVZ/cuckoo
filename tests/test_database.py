@@ -431,6 +431,7 @@ class TestDatabaseMigration060MySQL(DatabaseMigration060):
     @staticmethod
     def execute_script(cls, script):
         cls.s.execute(script)
+        cls.s.commit()
 
     @staticmethod
     def migrate(cls):
@@ -511,6 +512,7 @@ class TestDatabaseMigration11MySQL(DatabaseMigration11):
     @staticmethod
     def execute_script(cls, script):
         cls.s.execute(script)
+        cls.s.commit()
 
 @mock.patch("cuckoo.core.database.create_engine")
 @mock.patch("cuckoo.core.database.sessionmaker")
