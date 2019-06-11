@@ -1,54 +1,54 @@
-# # Copyright (C) 2016-2018 Cuckoo Foundation.
-# # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
-# # See the file 'docs/LICENSE' for copying permission.
-#
-# import datetime
-# import dpkt
-# import hashlib
-# import mock
-# import json
-# import os.path
-# import pytest
-# import shutil
-# import tempfile
-#
-# from cuckoo.common.abstracts import Processing, Extractor
-# from cuckoo.common.exceptions import (
-#     CuckooProcessingError, CuckooOperationalError
-# )
-# from cuckoo.common.files import Files
-# from cuckoo.common.objects import Dictionary
-# from cuckoo.core.database import Database
-# from cuckoo.core.extract import ExtractManager
-# from cuckoo.core.plugins import RunProcessing
-# from cuckoo.core.startup import init_console_logging, init_yara
-# from cuckoo.main import cuckoo_create
-# from cuckoo.misc import set_cwd, cwd, mkdir
-# from cuckoo.processing.behavior import (
-#     ProcessTree, ExtractScripts, BehaviorAnalysis
-# )
-# from cuckoo.processing.debug import Debug
-# from cuckoo.processing.droidmon import Droidmon
-# from cuckoo.processing.extracted import Extracted
-# from cuckoo.processing.memory import Memory, VolatilityManager, s as obj_s
-# from cuckoo.processing.network import Pcap, Pcap2, NetworkAnalysis, sort_pcap
-# from cuckoo.processing.platform.windows import RebootReconstructor
-# from cuckoo.processing.procmon import Procmon
-# from cuckoo.processing.screenshots import Screenshots
-# from cuckoo.processing.static import (
-#     Static, WindowsScriptFile, LnkShortcut, PdfDocument
-# )
-# from cuckoo.processing.strings import Strings
-# from cuckoo.processing.suricata import Suricata
-# from cuckoo.processing.targetinfo import TargetInfo
-# from cuckoo.processing.virustotal import VirusTotal
-#
-# try:
-#     from cuckoo.processing.memory import obj as vol_obj, exc as vol_exc
-#     HAVE_VOLATILITY = True
-# except ImportError:
-#     HAVE_VOLATILITY = False
-#
+# Copyright (C) 2016-2018 Cuckoo Foundation.
+# This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
+# See the file 'docs/LICENSE' for copying permission.
+
+import datetime
+import dpkt
+import hashlib
+import mock
+import json
+import os.path
+import pytest
+import shutil
+import tempfile
+
+from cuckoo.common.abstracts import Processing, Extractor
+from cuckoo.common.exceptions import (
+    CuckooProcessingError, CuckooOperationalError
+)
+from cuckoo.common.files import Files
+from cuckoo.common.objects import Dictionary
+from cuckoo.core.database import Database
+from cuckoo.core.extract import ExtractManager
+from cuckoo.core.plugins import RunProcessing
+from cuckoo.core.startup import init_console_logging, init_yara
+from cuckoo.main import cuckoo_create
+from cuckoo.misc import set_cwd, cwd, mkdir
+from cuckoo.processing.behavior import (
+    ProcessTree, ExtractScripts, BehaviorAnalysis
+)
+from cuckoo.processing.debug import Debug
+from cuckoo.processing.droidmon import Droidmon
+from cuckoo.processing.extracted import Extracted
+from cuckoo.processing.memory import Memory, VolatilityManager, s as obj_s
+from cuckoo.processing.network import Pcap, Pcap2, NetworkAnalysis, sort_pcap
+from cuckoo.processing.platform.windows import RebootReconstructor
+from cuckoo.processing.procmon import Procmon
+from cuckoo.processing.screenshots import Screenshots
+from cuckoo.processing.static import (
+    Static, WindowsScriptFile, LnkShortcut, PdfDocument
+)
+from cuckoo.processing.strings import Strings
+from cuckoo.processing.suricata import Suricata
+from cuckoo.processing.targetinfo import TargetInfo
+from cuckoo.processing.virustotal import VirusTotal
+
+try:
+    from cuckoo.processing.memory import obj as vol_obj, exc as vol_exc
+    HAVE_VOLATILITY = True
+except ImportError:
+    HAVE_VOLATILITY = False
+
 # db = Database()
 #
 # class TestProcessing(object):
