@@ -1439,45 +1439,45 @@ class TestSuricata(object):
         s.process_pcap_binary = create
         s.run()
 
-def test_static_extracted():
-    set_cwd(tempfile.mkdtemp())
-    cuckoo_create(cfg={
-        "processing": {
-            "analysisinfo": {
-                "enabled": False,
-            },
-            "debug": {
-                "enabled": False,
-            }
-        },
-    })
-    mkdir(cwd(analysis=1))
-    shutil.copy("tests/files/createproc1.docm", cwd("binary", analysis=1))
-
-    open(cwd("yara", "office", "ole.yar"), "wb").write("""
-        rule OleInside {
-            strings:
-                $s1 = "Win32_Process"
-            condition:
-                filename matches /word\/vbaProject.bin/ and $s1
-        }
-    """)
-    init_yara()
-
-    class OleInsideExtractor(Extractor):
-        def handle_yara(self, filepath, match):
-            return (
-                match.category == "office" and
-                match.yara[0].name == "OleInside"
-            )
-
-    ExtractManager._instances = {}
-    ExtractManager.extractors = OleInsideExtractor,
-
-    results = RunProcessing(Dictionary({
-        "id": 1,
-        "category": "file",
-        "target": "tests/files/createproc1.docm",
-    })).run()
-
-    assert len(results["extracted"]) == 1
+# def test_static_extracted():
+#     set_cwd(tempfile.mkdtemp())
+#     cuckoo_create(cfg={
+#         "processing": {
+#             "analysisinfo": {
+#                 "enabled": False,
+#             },
+#             "debug": {
+#                 "enabled": False,
+#             }
+#         },
+#     })
+#     mkdir(cwd(analysis=1))
+#     shutil.copy("tests/files/createproc1.docm", cwd("binary", analysis=1))
+#
+#     open(cwd("yara", "office", "ole.yar"), "wb").write("""
+#         rule OleInside {
+#             strings:
+#                 $s1 = "Win32_Process"
+#             condition:
+#                 filename matches /word\/vbaProject.bin/ and $s1
+#         }
+#     """)
+#     init_yara()
+#
+#     class OleInsideExtractor(Extractor):
+#         def handle_yara(self, filepath, match):
+#             return (
+#                 match.category == "office" and
+#                 match.yara[0].name == "OleInside"
+#             )
+#
+#     ExtractManager._instances = {}
+#     ExtractManager.extractors = OleInsideExtractor,
+#
+#     results = RunProcessing(Dictionary({
+#         "id": 1,
+#         "category": "file",
+#         "target": "tests/files/createproc1.docm",
+#     })).run()
+#
+#     assert len(results["extracted"]) == 1
