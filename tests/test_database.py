@@ -437,6 +437,7 @@ class TestDatabaseMigration060MySQL(DatabaseMigration060):
 
     @staticmethod
     def execute_script(cls, script):
+        cls.d.engine.execute("SET wait_timeout=20")
         cls.d.engine.execute(script)
         cls.s.commit()
 
@@ -518,6 +519,7 @@ class TestDatabaseMigration11MySQL(DatabaseMigration11):
 
     @staticmethod
     def execute_script(cls, script):
+        cls.d.engine.execute("SET wait_timeout=20")
         cls.d.engine.execute(script)
         cls.s.commit()
 
