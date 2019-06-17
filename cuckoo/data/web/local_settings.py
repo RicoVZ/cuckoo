@@ -42,5 +42,6 @@ handler500 = web.errors.handler500
 #samples and dropped files 
 #Values in this list can be ipv4 or ipv6 separated by "," 
 #(e.g. '127.0.0.0/8,10.0.0.0/8,fd00::/8').
-ALLOWED_FILEDOWNLOAD_SUBNETS = '127.0.0.0/8,10.0.0.0/8,fd00::/8'
+# Uncomment to enable
+# ALLOWED_FILEDOWNLOAD_SUBNETS = '127.0.0.0/8,10.0.0.0/8,fd00::/8'
 
