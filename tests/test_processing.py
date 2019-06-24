@@ -81,7 +81,7 @@ class TestProcessing(object):
         cuckoo_create()
         init_console_logging()
 
-        db.connect(dsn="sqlite:///:memory:")
+        db.connect()
         db.add_url("http://google.com/")
         db.add_error("foo", 1)
         db.add_error("bar", 1)
