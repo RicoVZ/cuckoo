@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 db = Database()
 
 def analyzer_zipfile(platform, monitor):
-    """Create the zip file that is sent to the Guest."""
+    """Creates the Zip file that is sent to the Guest."""
     t = time.time()
 
     zip_data = io.BytesIO()
@@ -106,7 +106,6 @@ class OldGuestManager(object):
         # TODO, pull options parameter into __init__ so we can do this here
         self.timeout = None
         self.server = None
-        self.do_run = True
 
     def wait(self, status):
         """Waiting for status.
@@ -118,7 +117,7 @@ class OldGuestManager(object):
         end = time.time() + self.timeout
         self.server._set_timeout(self.timeout)
 
-        while db.guest_get_status(self.task_id) == "starting" and self.do_run:
+        while db.guest_get_status(self.task_id) == "starting":
             # Check if we've passed the timeout.
             if time.time() > end:
                 raise CuckooGuestCriticalTimeout(
@@ -180,8 +179,6 @@ class OldGuestManager(object):
             # availability of the agent and verify that it's ready to receive
             # data.
             self.wait(CUCKOO_GUEST_INIT)
-            if not self.do_run:
-                return
 
             # Invoke the upload of the analyzer to the guest.
             self.upload_analyzer(monitor)
@@ -236,7 +233,7 @@ class OldGuestManager(object):
         end = time.time() + self.timeout
         self.server._set_timeout(self.timeout)
 
-        while db.guest_get_status(self.task_id) == "running" and self.do_run:
+        while db.guest_get_status(self.task_id) == "running":
             time.sleep(1)
 
             # If the analysis hits the critical timeout, just return straight
@@ -289,16 +286,10 @@ class GuestManager(object):
         self.environ = {}
 
         self.options = {}
-        self.do_run = True
 
     @property
     def aux(self):
         return self.analysis_manager.aux
-
-    def stop(self):
-        self.do_run = False
-        if self.is_old:
-            self.old.do_run = False
 
     def get(self, method, *args, **kwargs):
         """Simple wrapper around requests.get()."""
@@ -310,10 +301,11 @@ class GuestManager(object):
 
         try:
             r = session.get(url, *args, **kwargs)
+            log.debug(r.content)
         except requests.ConnectionError:
             raise CuckooGuestError(
                 "Cuckoo Agent failed without error status, please try "
-                "upgrading to the latest version of agent.py (>= 0.10) and "
+                "upgrading to the latest version of agent.py (>= 0.8) and "
                 "notify us if the issue persists."
             )
 
@@ -329,10 +321,11 @@ class GuestManager(object):
 
         try:
             r = session.post(url, *args, **kwargs)
+            log.debug(r.content)
         except requests.ConnectionError:
             raise CuckooGuestError(
                 "Cuckoo Agent failed without error status, please try "
-                "upgrading to the latest version of agent.py (>= 0.10) and "
+                "upgrading to the latest version of agent.py (>= 0.8) and "
                 "notify us if the issue persists."
             )
 
@@ -343,7 +336,7 @@ class GuestManager(object):
         """Wait until the Virtual Machine is available for usage."""
         end = time.time() + self.timeout
 
-        while db.guest_get_status(self.task_id) == "starting" and self.do_run:
+        while db.guest_get_status(self.task_id) == "starting":
             try:
                 socket.create_connection((self.ipaddr, self.port), 1).close()
                 break
@@ -385,6 +378,8 @@ class GuestManager(object):
     def determine_temp_path(self):
         if self.platform == "windows":
             return self.environ["TEMP"]
+        if self.platform == "darwin":
+            return self.analyzer_path
         return "/tmp"
 
     def upload_analyzer(self, monitor):
@@ -392,8 +387,8 @@ class GuestManager(object):
         zip_data = analyzer_zipfile(self.platform, monitor)
 
         log.debug(
-            "Uploading analyzer to guest (id=%s, ip=%s, monitor=%s, size=%d)",
-            self.vmid, self.ipaddr, monitor, len(zip_data)
+            "Uploading analyzer to guest (id=%s, ip=%s, monitor=%s, size=%d, path=%s, platform=%s)",
+            self.vmid, self.ipaddr, monitor, len(zip_data), self.analyzer_path, self.platform
         )
 
         self.determine_analyzer_path()
@@ -425,16 +420,14 @@ class GuestManager(object):
         @param options: the task options
         @param monitor: identifier of the monitor to be used.
         """
-        log.info("Starting analysis #%s on guest (id=%s, ip=%s)",
-                 self.task_id, self.vmid, self.ipaddr)
+        log.info("Starting analysis on guest (id=%s, ip=%s)",
+                 self.vmid, self.ipaddr)
 
         self.options = options
         self.timeout = options["timeout"] + config("cuckoo:timeouts:critical")
 
         # Wait for the agent to come alive.
         self.wait_available()
-        if not self.do_run:
-            return
 
         # Could be beautified a bit, but basically we have to perform the
         # same check here as we did in wait_available().
@@ -481,6 +474,7 @@ class GuestManager(object):
 
         log.info("Guest is running Cuckoo Agent %s (id=%s, ip=%s)",
                  version, self.vmid, self.ipaddr)
+        log.debug(options)
 
         # Pin the Agent to our IP address so that it is not accessible by
         # other Virtual Machines etc.
@@ -514,9 +508,10 @@ class GuestManager(object):
         if "execpy" in features:
             data = {
                 "filepath": "%s/analyzer.py" % self.analyzer_path,
-                "async": "yes",
+                #"async": "yes",
                 "cwd": self.analyzer_path,
             }
+            log.debug(data["filepath"])
             self.post("/execpy", data=data)
         else:
             # Execute the analyzer that we just uploaded.
@@ -525,6 +520,7 @@ class GuestManager(object):
                 "async": "yes",
                 "cwd": self.analyzer_path,
             }
+            
             self.post("/execute", data=data)
 
     def wait_for_completion(self):
@@ -532,18 +528,11 @@ class GuestManager(object):
             self.old.wait_for_completion()
             return
 
-        count = 0
         end = time.time() + self.timeout
 
-        while db.guest_get_status(self.task_id) == "running" and self.do_run:
-            if count >= 5:
-                log.debug(
-                    "%s: analysis #%s still processing", self.vmid,
-                    self.task_id
-                )
-                count = 0
+        while db.guest_get_status(self.task_id) == "running":
+            log.debug("%s: analysis still processing", self.vmid)
 
-            count += 1
             time.sleep(1)
 
             # If the analysis hits the critical timeout, just return straight
@@ -554,17 +543,11 @@ class GuestManager(object):
 
             try:
                 status = self.get("/status", timeout=5).json()
-            except CuckooGuestError:
-                # this might fail due to timeouts or just temporary network
-                # issues thus we don't want to abort the analysis just yet and
-                # wait for things to recover
-                log.warning(
-                    "Virtual Machine /status failed. This can indicate the "
-                    "guest losing network connectivity"
-                )
-                continue
             except Exception as e:
-                log.error("Virtual machine /status failed. %s", e)
+                log.info("Virtual Machine /status failed (%r)", e)
+                # this might fail due to timeouts or just temporary network issues
+                # thus we don't want to abort the analysis just yet and wait for things to
+                # recover
                 continue
 
             if status["status"] == "complete":
@@ -572,8 +555,8 @@ class GuestManager(object):
                 return
             elif status["status"] == "exception":
                 log.warning(
-                    "%s: analysis #%s caught an exception\n%s",
-                    self.vmid, self.task_id, status["description"]
+                    "%s: analysis caught an exception\n%s",
+                    self.vmid, status["description"]
                 )
                 return
 
