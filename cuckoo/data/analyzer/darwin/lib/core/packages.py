@@ -47,7 +47,7 @@ def _guess_package_name(file_type, file_name):
     elif "ASCII" in file_type or "text" in file_type and file_name.endswith(".py"):
         return "python"
     elif file_name.endswith(".pkg"):
-        return packages
+        return "packages"
     else:
         return None
 
