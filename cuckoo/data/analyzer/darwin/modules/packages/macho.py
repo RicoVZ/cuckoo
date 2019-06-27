@@ -1,14 +1,30 @@
-#!/usr/bin/env python
-# Copyright (C) 2015 Dmitry Rodionov
-# This software may be modified and distributed under the terms
-# of the MIT license. See the LICENSE file for details.
+import subprocess
+import time
+import os
+#Use subprocess instead of OS, as it is easier to grasp the PID of the process spawned
+#which can be returned and handled for execution span configurations.
+class Macho(object):
+	def __init__(self, package_path=None, configuration=None):
+		#All the initiation parameters goes here. Store the necessary configurations
+		self.target_sample = package_path
+		#Prepare the environment
+		self._prepare_env()
+		#execute the sample
+		self._execute()
 
-from os import system
-from lib.core.packages import Package
+	def _prepare_env(self):
+		#In case, environment needs to be taken care of, put all of it in here
+		#Such as setting the clock, turning of or on services. Depends on configurations
+		
+		#Give executable permission to target
+		os.system("chmod +x " + self.target_sample)
 
-class Macho(Package):
-    """ Mach-O executable analysys package. """
+	def _execute(self):
+		#The execution process goes here.
+		exec_command = "./"+self.target_sample
+		target_process = subprocess.Popen([exec_command], shell=True)
+		#fetch target PID
+		self.exec_time = time.time()
+		self.target_pid = target_process.pid
 
-    def prepare(self):
-        # Make sure that our target is executable
-        system("/bin/chmod +x \"%s\"" % self.target)
+
