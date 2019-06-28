@@ -22,7 +22,7 @@ class Macho(object):
 	def _execute(self):
 		#The execution process goes here.
 		exec_command = "./"+self.target_sample
-		target_process = subprocess.Popen([exec_command], shell=True)
+		target_process = subprocess.Popen([exec_command], shell=False, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 		#fetch target PID
 		self.exec_time = time.time()
 		self.target_pid = target_process.pid

@@ -18,7 +18,7 @@ class Python(object):
 
 	def _execute(self):
 		#The execution process goes here.
-		target_process = subprocess.Popen(['python', self.target_sample], shell=True)
+		target_process = subprocess.Popen(['python', self.target_sample], shell=False, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 		#fetch target PID
 		self.exec_time = time.time()
 		self.target_pid = target_process.pid

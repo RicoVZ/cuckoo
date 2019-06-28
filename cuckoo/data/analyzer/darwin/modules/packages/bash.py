@@ -1,6 +1,7 @@
 import subprocess
 import time
 import os
+import sys
 #Use subprocess instead of OS, as it is easier to grasp the PID of the process spawned
 #which can be returned and handled for execution span configurations.
 class Bash(object):
@@ -17,11 +18,11 @@ class Bash(object):
 		#Such as setting the clock, turning of or on services. Depends on configurations
 		
 		#Give executable permission to target
-		os.system("chmod +x " + self.target_sample)
+		os.system("sudo chmod +x " + self.target_sample)
 
 	def _execute(self):
 		#The execution process goes here.
-		target_process = subprocess.Popen(['sh', self.target_sample], shell=True)
+		target_process = subprocess.Popen(['sh', self.target_sample], shell=False, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 		#fetch target PID
 		self.exec_time = time.time()
 		self.target_pid = target_process.pid
