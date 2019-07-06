@@ -2,6 +2,8 @@ import subprocess
 import time
 #Use subprocess instead of OS, as it is easier to grasp the PID of the process spawned
 #which can be returned and handled for execution span configurations.
+#The job of this module is to take the INPUT file, create necessary environment, spawan the target process and return the
+#execution time and PID(Process Identififer)
 class Python(object):
 	def __init__(self, package_path=None, configuration=None):
 		#All the initiation parameters goes here. Store the necessary configurations
