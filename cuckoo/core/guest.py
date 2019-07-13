@@ -310,6 +310,7 @@ class GuestManager(object):
 
         try:
             r = session.get(url, *args, **kwargs)
+            log.debug(r.content)
         except requests.ConnectionError:
             raise CuckooGuestError(
                 "Cuckoo Agent failed without error status, please try "
@@ -329,6 +330,7 @@ class GuestManager(object):
 
         try:
             r = session.post(url, *args, **kwargs)
+            log.debug(r.content)
         except requests.ConnectionError:
             raise CuckooGuestError(
                 "Cuckoo Agent failed without error status, please try "
@@ -385,6 +387,8 @@ class GuestManager(object):
     def determine_temp_path(self):
         if self.platform == "windows":
             return self.environ["TEMP"]
+        if self.platform == "darwin":
+            return self.analyzer_path
         return "/tmp"
 
     def upload_analyzer(self, monitor):
@@ -392,8 +396,8 @@ class GuestManager(object):
         zip_data = analyzer_zipfile(self.platform, monitor)
 
         log.debug(
-            "Uploading analyzer to guest (id=%s, ip=%s, monitor=%s, size=%d)",
-            self.vmid, self.ipaddr, monitor, len(zip_data)
+            "Uploading analyzer to guest (id=%s, ip=%s, monitor=%s, size=%d, path=%s, platform=%s)",
+            self.vmid, self.ipaddr, monitor, len(zip_data), self.analyzer_path, self.platform
         )
 
         self.determine_analyzer_path()
@@ -489,6 +493,7 @@ class GuestManager(object):
 
         # Obtain the environment variables.
         self.query_environ()
+        log.debug(options)
 
         # Upload the analyzer.
         self.upload_analyzer(monitor)
@@ -514,7 +519,7 @@ class GuestManager(object):
         if "execpy" in features:
             data = {
                 "filepath": "%s/analyzer.py" % self.analyzer_path,
-                "async": "yes",
+                #"async": "yes",
                 "cwd": self.analyzer_path,
             }
             self.post("/execpy", data=data)
