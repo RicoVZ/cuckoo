@@ -236,6 +236,16 @@ class BsonStore(ProtocolHandler):
         if self.fd:
             return self.handler.copy_to_fd(self.fd)
 
+class JsonHandler(ProtocolHandler):
+    def init(self):
+        self.logpath = os.path.join(self.handler.storagepath, "xnumon.log")
+        log.debug("Agent is streaming JSON data. Storing them to xnumon.log")
+        self.fd = open(self.logpath, "wb")
+        log.debug("Task #%s, live stream initalized")
+
+    def handle(self):
+        if self.fd:
+            return self.handler.copy_to_fd(self.fd)
 class GeventResultServerWorker(gevent.server.StreamServer):
     """The new ResultServer, providing a huge performance boost as well as
     implementing a new dropped file storage format avoiding small fd limits.
@@ -254,6 +264,7 @@ class GeventResultServerWorker(gevent.server.StreamServer):
         "BSON": BsonStore,
         "FILE": FileUpload,
         "LOG": LogHandler,
+        "JSON": JsonHandler
     }
     task_mgmt_lock = threading.Lock()
 
