@@ -1,12 +1,13 @@
 # Copyright (C) 2015-2018 Cuckoo Foundation.
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
-
 import sys
 import os
 import urllib
 import urllib2
 import socket
+import logging
+from lib.common.results import NetlogHandler 
 from lib.common.config import Config
 from lib.core.packages import _initiate_recognition
 
@@ -14,8 +15,11 @@ from lib.core.packages import _initiate_recognition
 #Determine why status is not getting updated, even while requesting to agent properly.
 #Set up a method to enfore timeout if configured.
 #Add support for URL category.
+log = logging.getLogger("analyzer")
+
 
 class darwin_analyser(object):
+    log = logging.getLogger()
     #Cuckoo mac OS analyser --> Supporing Sierra/High Sierra/Mojave
     def __init__(self, configuration=None):
         #storing user configurations
@@ -25,20 +29,26 @@ class darwin_analyser(object):
         self.XNUMON_PORT = 4343
     def run(self):
         #Initiate analysis
+        _setup_logging()
+        log.debug("Initializing analysis")
         #Send configurations to xnumon
         self._upload_to_xnumon()
+        log.debug("Configurations delivered to Xnumon daemon")
         #Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         #Determining target type File/URL
         self._detect_target()
         #Passing file to file handler
         self._handle_package()
+        log.debug("Triggering Sample")
 
     def _upload_to_xnumon(self):
         socket_xnumon = socket.socket()
         socket_xnumon.connect((self.XNUMON_HOST, self.XNUMON_PORT))
+        log.debug("Connected to Xnumon agent")
         file = open('analysis.conf','rb')
         data = file.read(1024)
+        log.debug("Transferring configurations to Xnumon agent")
         while (data):
             socket_xnumon.send(data)
             data = file.read(1024)
@@ -67,7 +77,19 @@ class darwin_analyser(object):
                     "package_path":self.package_path
                 }            
             self.target_pid, self.exec_time = _initiate_recognition(self.config.file_type, self.config.file_name, **kwargs)
-        
+def _setup_logging():
+    #Initiate Loggings
+    logger = logging.getLogger()
+    formatter = logging.Formatter("%(asctime)s [%(name)s] %(levelname)s: %(message)s")
+
+    stream = logging.StreamHandler()
+    stream.setFormatter(formatter)
+    logger.addHandler(stream)
+
+    netlog = NetlogHandler()
+    netlog.setFormatter(formatter)
+    logger.addHandler(netlog)
+    logger.setLevel(logging.DEBUG)       
 
 if __name__ == "__main__":
     config = Config(cfg="analysis.conf")
