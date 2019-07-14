@@ -474,7 +474,6 @@ class GuestManager(object):
 
         log.info("Guest is running Cuckoo Agent %s (id=%s, ip=%s)",
                  version, self.vmid, self.ipaddr)
-        log.debug(options)
 
         # Pin the Agent to our IP address so that it is not accessible by
         # other Virtual Machines etc.
@@ -483,7 +482,6 @@ class GuestManager(object):
 
         # Obtain the environment variables.
         self.query_environ()
-        log.debug(options)
 
         # Upload the analyzer.
         self.upload_analyzer(monitor)
@@ -509,7 +507,7 @@ class GuestManager(object):
         if "execpy" in features:
             data = {
                 "filepath": "%s/analyzer.py" % self.analyzer_path,
-                #"async": "yes",
+                "async": "yes",
                 "cwd": self.analyzer_path,
             }
             log.debug(data["filepath"])
