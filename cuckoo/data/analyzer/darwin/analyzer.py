@@ -7,6 +7,7 @@ import urllib
 import urllib2
 import socket
 import logging
+import time
 from lib.common.results import NetlogHandler 
 from lib.common.config import Config
 from lib.core.packages import _initiate_recognition
@@ -41,6 +42,7 @@ class darwin_analyser(object):
         #Passing file to file handler
         self._handle_package()
         log.debug("Triggering Sample")
+        self._monitor_timeout()
 
     def _upload_to_xnumon(self):
         socket_xnumon = socket.socket()
@@ -77,6 +79,40 @@ class darwin_analyser(object):
                     "package_path":self.package_path
                 }            
             self.target_pid, self.exec_time = _initiate_recognition(self.config.file_type, self.config.file_name, **kwargs)
+    def _check_pid(self, pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
+    def _monitor_timeout(self):
+        data = {
+            "status": "complete",
+            "description": "Timeout is encountered, aborting analysis",
+        }
+        #enforce_timeout:true
+        if (self.config.timeout):
+            log.debug("Timeout detected")
+            end_point = self.config.tiemout + self.exec_time
+            #check every second
+            iteration_control = True 
+            while iteration_control:
+                if(time.time() >= end_point):
+                    urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
+                    iteration_control=False
+                time.sleep(2)
+        #enforce_timeout:false
+        else:
+            #wait by default for 5 seconds
+            time.sleep(5)
+            #then check if process is still active
+            iteration_control = True 
+            while iteration_control:
+                if self._check_pid(self.target_pid):
+                    urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
+                    iteration_control=False
+                time.sleep(1)
 def _setup_logging():
     #Initiate Loggings
     logger = logging.getLogger()
