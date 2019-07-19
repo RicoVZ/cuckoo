@@ -44,7 +44,7 @@ class darwin_analyser(object):
         # Passing file to file handler
         self._handle_package()
         log.debug("Triggering Sample")
-        #self._monitor_timeout()
+        self._monitor_timeout()
 
     def _upload_to_xnumon(self):
         socket_xnumon = socket.socket()
@@ -105,14 +105,14 @@ class darwin_analyser(object):
         }
         timeout_counter = 0
         iteration_control = True
-        while(iteration_control) {
-            if(timeout_controller >= self.config.timeout):
+        while(iteration_control):
+            if(timeout_counter >= self.config.timeout):
                 iteration_control = False
                 urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
             time.sleep(1)
-            timeout_counter++
-        }
+            timeout_counter += 1
         
+
 def _setup_logging():
     # Initiate Loggings
     logger = logging.getLogger()
