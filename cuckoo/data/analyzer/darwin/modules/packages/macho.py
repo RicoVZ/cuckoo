@@ -23,8 +23,13 @@ class Macho(object):
 		#The execution process goes here.
 		exec_command = "./"+self.target_sample
 		target_process = subprocess.Popen([exec_command], shell=False, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-		#fetch target PID
-		self.exec_time = time.time()
-		self.target_pid = target_process.pid
+		check_process = target_process.communicate()
+		#if there's no error, set the target process.
+		if (check_process[0] != ''):
+			self.target_pid = None
+			self.exec_error = check_process[0]
+		else:
+			self.target_pid = target_process.pid
+			self.exec_error = None
 
 
