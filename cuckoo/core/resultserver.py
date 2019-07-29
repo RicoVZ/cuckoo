@@ -238,7 +238,7 @@ class BsonStore(ProtocolHandler):
 
 class JsonHandler(ProtocolHandler):
     def init(self):
-        self.logpath = os.path.join(self.handler.storagepath, "xnumon.log")
+        self.logpath = os.path.join(self.handler.storagepath, "logs/xnumon.log")
         log.debug("Agent is streaming JSON data. Storing them to xnumon.log")
         self.fd = open(self.logpath, "wb")
         log.debug("Task #%s, live stream initalized")
