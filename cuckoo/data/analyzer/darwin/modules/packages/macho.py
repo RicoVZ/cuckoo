@@ -1,6 +1,7 @@
 import subprocess
 import time
 import os
+import sys
 #Use subprocess instead of OS, as it is easier to grasp the PID of the process spawned
 #which can be returned and handled for execution span configurations.
 class Macho(object):
@@ -21,7 +22,8 @@ class Macho(object):
 
 	def _execute(self):
 		#The execution process goes here.
-		exec_command = "./"+self.target_sample
+		file_name = self.target_sample.split("/")
+		exec_command = "./"+file_name[2]
 		target_process = subprocess.Popen([exec_command], shell=False, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
 		check_process = target_process.communicate()
 		#if there's no error, set the target process.
