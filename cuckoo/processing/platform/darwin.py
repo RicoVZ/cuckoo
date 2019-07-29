@@ -19,33 +19,47 @@ class DarwinXnumonParser(BehaviorHandler):
 						continue
 					else:
 						if json_string['eventcode'] == 2:
+
 							proc_dict = {
-								"type":"execve/posix_spawn",
-								"path":json_string['image']['path'],
-								"args":json_string['argv'],
+								"type":"process",
+								"pid":json_string["subject"]["pid"],
+								"ppid":json_string["subject"]["ancestors"][0]["exec_pid"],
+								"process_name":"",
 								"first_seen":json_string['image']['ctime'],
+								"command_line":" ".join(json_string['argv']),
+								"calls":"",
+								"path":json_string['image']['path'],
 								"signature": json_string['image']['signature'],
 								"origin":json_string['image']['origin']
 							}
 							self.processes.append(proc_dict)
 						elif json_string['eventcode'] == 3:
 							proc_dict = {
-								"type":"process_manipulation",
+								"type":"process",
+								"pid":json_string["subject"]["pid"],
+								"ppid":json_string["subject"]["ancestors"][0]["exec_pid"],
+								"process_name":"",
+								"first_seen":json_string['image']['ctime'],
+								"command_line":" ".join(json_string['argv']),
+								"calls":"",
 								"method":json_string['method'],
 								"path":json_string['image']['path'],
-								"first_seen":json_string['image']['ctime'],
 								"signature": json_string['image']['signature'],
 								"origin":json_string['image']['origin']
 							}
 							self.processes.append(proc_dict)
 						elif json_string['eventcode'] == 4:
 							proc_dict = {
-								"type":"daemon",
+								"type":"process",
+								"pid":json_string["subject"]["pid"],
+								"ppid":json_string["subject"]["ancestors"][0]["exec_pid"],
+								"process_name":"",
+								"first_seen":json_string['image']['ctime'],
+								"command_line":" ".join(json_string['argv']),
+								"calls":"",
 								"daemon":json_string['plist']['path'],
 								"parent_program":json_string['program']['path'],
-								"args":json_string['program']['argv'],
 								"path":json_string['image']['path'],
-								"first_seen":json_string['image']['ctime'],
 								"signature": json_string['image']['signature'],
 								"origin":json_string['image']['origin']
 							}
