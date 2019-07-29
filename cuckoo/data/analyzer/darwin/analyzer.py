@@ -8,6 +8,9 @@ import urllib2
 import socket
 import logging
 import time
+import threading
+from modules.auxiliary import InitiateMonitor
+from lib.common.process import TRACKED_PROCESSES
 from lib.common.results import NetlogHandler
 from lib.common.config import Config
 from lib.core.packages import _initiate_recognition
@@ -34,9 +37,10 @@ class darwin_analyser(object):
         # Initiate analysis
         _setup_logging()
         log.debug("Initializing analysis")
-        # Send configurations to xnumon
-        self._upload_to_xnumon()
-        log.debug("Configurations delivered to Xnumon daemon")
+        #initializing xnumon
+        xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
+        xnumon_daemon.daemon = True
+        xnumon_daemon.start()
         # Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         # Determining target type File/URL
@@ -46,19 +50,9 @@ class darwin_analyser(object):
         log.debug("Triggering Sample")
         self._monitor_timeout()
 
-    def _upload_to_xnumon(self):
-        socket_xnumon = socket.socket()
-        socket_xnumon.connect((self.XNUMON_HOST, self.XNUMON_PORT))
-        log.debug("Connected to Xnumon agent")
-        file = open('analysis.conf', 'rb')
-        data = file.read(1024)
-        log.debug("Transferring configurations to Xnumon agent")
-        while (data):
-            socket_xnumon.send(data)
-            data = file.read(1024)
-        file.close()
-        socket_xnumon.shutdown(socket.SHUT_WR)
-        socket_xnumon.close
+    def _initiate_xnumon(self):
+        monitor = InitiateMonitor(self.config)
+        monitor.run()
 
     def _detect_target(self):
         if self.config.category == "file":
@@ -88,6 +82,9 @@ class darwin_analyser(object):
                     "description": self.exec_error,
                 }
                 urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
+                
+            else:
+                TRACKED_PROCESSES.append(self.target_pid)
 
 
     def _check_pid(self, pid):
