@@ -241,11 +241,12 @@ class JsonHandler(ProtocolHandler):
         self.logpath = os.path.join(self.handler.storagepath, "logs/process.xnumon")
         log.debug("Agent is streaming JSON data. Storing them to xnumon.log")
         self.fd = open(self.logpath, "wb")
-        log.debug("Task #%s, live stream initalized")
+        log.debug("Task #%s, live stream initalized", self.task_id)
 
     def handle(self):
         if self.fd:
             return self.handler.copy_to_fd(self.fd)
+
 class GeventResultServerWorker(gevent.server.StreamServer):
     """The new ResultServer, providing a huge performance boost as well as
     implementing a new dropped file storage format avoiding small fd limits.
