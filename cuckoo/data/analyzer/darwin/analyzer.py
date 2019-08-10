@@ -9,7 +9,7 @@ import socket
 import logging
 import time
 import threading
-from modules.auxiliary import InitiateMonitor
+from modules.auxiliary.xnumon import InitiateMonitor
 from lib.common.process import TRACKED_PROCESSES
 from lib.common.results import NetlogHandler
 from lib.common.config import Config
@@ -30,8 +30,6 @@ class darwin_analyser(object):
         # storing user configurations
         self.config = configuration
         self.package_path = None
-        self.XNUMON_HOST = "127.0.0.1"
-        self.XNUMON_PORT = 4343
 
     def run(self):
         # Initiate analysis
@@ -41,6 +39,7 @@ class darwin_analyser(object):
         xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
         xnumon_daemon.daemon = True
         xnumon_daemon.start()
+        log.debug("Started Xnumon Daemon")
         # Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         # Determining target type File/URL
