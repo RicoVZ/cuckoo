@@ -23,11 +23,11 @@ class InitiateMonitor(object):
         # initiate logging
         self._log()
 
-     def _kill_existing(self):
+    def _kill_existing(self):
         if os.path.isfile(self.PID_PATH):
             os.remove(self.PID_PATH)
 
-     def _execute(self):
+    def _execute(self):
         popen = subrpocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         for stdout_line in iter(popen.stdout.readline,""):
             yield stdout_line
@@ -36,7 +36,7 @@ class InitiateMonitor(object):
         if return_code:
             raise subprocess.CalledProcessError(return_code, cmd)
 
-     def _check_relevance(self,log):
+    def _check_relevance(self,log):
         json_string = json.loads(log)
         if json_string["eventcodes"] in self.RELEVANT_EVENTCODES:
             if json_string["subject"]["pid"] in TRACKED_PROCESSES or json_string["subject"]["image"]["exec_pid"] in TRACKED_PROCESSES:
@@ -50,7 +50,7 @@ class InitiateMonitor(object):
             return False
 
 
-     def _log(self):
+    def _log(self):
         buffer_events = []
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
