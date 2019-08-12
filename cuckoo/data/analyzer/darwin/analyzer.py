@@ -36,11 +36,12 @@ class darwin_analyser(object):
         _setup_logging()
         log.debug("Initializing analysis")
         #initializing xnumon
-        xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
-        xnumon_daemon.daemon = True
-        xnumon_daemon.start()
-        log.debug("Started Xnumon Daemon")
-        # Storing the package path
+        # xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
+        # xnumon_daemon.daemon = True
+        # xnumon_daemon.start()
+        # log.debug("Started Xnumon Daemon")
+        self._initiate_xnumon()
+        #Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         # Determining target type File/URL
         self._detect_target()
@@ -51,7 +52,7 @@ class darwin_analyser(object):
 
     def _initiate_xnumon(self):
         monitor = InitiateMonitor(self.config)
-        monitor.run()
+        monitor._run()
 
     def _detect_target(self):
         if self.config.category == "file":

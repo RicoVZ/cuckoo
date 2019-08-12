@@ -491,7 +491,7 @@ class GuestManager(object):
 
         # Allow Auxiliary modules to prepare the Guest.
         self.aux.callback("prepare_guest")
-
+        log.debug(options)
         # If the target is a file, upload it to the guest.
         if options["category"] == "file" or options["category"] == "archive":
             data = {
@@ -507,7 +507,7 @@ class GuestManager(object):
         if "execpy" in features:
             data = {
                 "filepath": "%s/analyzer.py" % self.analyzer_path,
-                "async": "yes",
+                #"async": "yes",
                 "cwd": self.analyzer_path,
             }
             log.debug(data["filepath"])

@@ -27,8 +27,8 @@ class InitiateMonitor(object):
         if os.path.isfile(self.PID_PATH):
             os.remove(self.PID_PATH)
 
-    def _execute(self):
-        popen = subrpocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
+    def _execute(self,cmd):
+        popen = subprocess.Popen(cmd, stdout=subprocess.PIPE, universal_newlines=True)
         for stdout_line in iter(popen.stdout.readline,""):
             yield stdout_line
         popen.stdout.close()
@@ -54,7 +54,7 @@ class InitiateMonitor(object):
         buffer_events = []
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
-        socket_host.connect("JSON\n")
+        socket_host.send("JSON\n")
         for log in self._execute(["sudo", "./xnumon", "-d"]):
             if TRACKED_PROCESSES:
                 iteration_control = True
@@ -69,6 +69,6 @@ class InitiateMonitor(object):
                 if self._check_relevance(log):
                     socket_host.send(log.encode())
             else:
-                buffer_events += log
+                socket_host.send(log.encode())
 
 
