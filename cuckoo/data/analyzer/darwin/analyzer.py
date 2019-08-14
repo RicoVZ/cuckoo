@@ -36,11 +36,10 @@ class darwin_analyser(object):
         _setup_logging()
         log.debug("Initializing analysis")
         #initializing xnumon
-        # xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
-        # xnumon_daemon.daemon = True
-        # xnumon_daemon.start()
-        # log.debug("Started Xnumon Daemon")
-        self._initiate_xnumon()
+        xnumon_daemon = threading.Thread(target=self._initiate_xnumon)
+        xnumon_daemon.daemon = True
+        xnumon_daemon.start()
+        log.debug("Started Xnumon Daemon")
         #Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         # Determining target type File/URL
@@ -82,9 +81,10 @@ class darwin_analyser(object):
                     "description": self.exec_error,
                 }
                 urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
-                
+                log.debug('3')
             else:
                 TRACKED_PROCESSES.append(self.target_pid)
+                log.debug('Adding process to TRACKED_PROCESSES : %s',str(TRACKED_PROCESSES))
 
 
     def _check_pid(self, pid):
