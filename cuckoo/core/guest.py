@@ -507,7 +507,7 @@ class GuestManager(object):
         if "execpy" in features:
             data = {
                 "filepath": "%s/analyzer.py" % self.analyzer_path,
-                #"async": "yes",
+                "async": "yes",
                 "cwd": self.analyzer_path,
             }
             log.debug(data["filepath"])
