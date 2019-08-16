@@ -238,9 +238,17 @@ class BsonStore(ProtocolHandler):
 
 class JsonHandler(ProtocolHandler):
     def init(self):
-        self.logpath = os.path.join(self.handler.storagepath, "logs/process.xnumon")
-        log.debug("Agent is streaming JSON data. Storing them to xnumon.log")
-        self.fd = open(self.logpath, "wb")
+        stream_type = self.handler.read_newline()
+        if stream_type == 'XNUMON':
+            file_name = "logs/process.xnumon"
+        elif stream_type == 'DTRACE':
+            file_name = "logs/logs.dtrace"
+        self.logpath = os.path.join(self.handler.storagepath,file_name)
+        log.debug("Agent is streaming JSON data. Storing them to %s.log",stream_type)
+        try:
+            self.fd = open_exclusive(self.logpath, "wb")
+        except:
+            log.error("Task %s attempted to open the log file more than once", self.task_id)
         log.debug("Task #%s, live stream initalized", self.task_id)
 
     def handle(self):
