@@ -57,6 +57,7 @@ class InitiateMonitor(object):
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
         socket_host.send("JSON\n")
+        socket_host.send("XNUMON\n")
         for log in self._execute(["sudo", "/usr/local/sbin/xnumon", "-d"]):
             if TRACKED_PROCESSES:
                 if self._check_relevance(log):
