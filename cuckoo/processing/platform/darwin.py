@@ -82,9 +82,9 @@ def _verify_xnumon(path):
             if json_string['version']:
                 return True
         except:
-            log.warning("Log doesn't contain Xnumon logs.Aborting processing module")
+            #log.warning("Log doesn't contain Xnumon logs.Aborting processing module")
             return False
     except:
-        log.warning("Log can't ne parsed by JSON.Aborting processing module")
+        #log.warning("Log can't be parsed by JSON.Aborting processing module")
         return False
 
