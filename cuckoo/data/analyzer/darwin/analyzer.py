@@ -73,12 +73,17 @@ class darwin_analyser(object):
                 kwargs = {
                     "package_path": self.package_path
                 }
-            self.target_pid, self.exec_error = _initiate_recognition(
+            exec_error = None
+            try:
+                self.target_pid = _initiate_recognition(
                 self.config.file_type, self.config.file_name, **kwargs)
-            if(self.exec_error != None):
+            except Exception as e:
+                exec_error = e
+
+            if exec_error:
                 data = {
                     "status": "exception",
-                    "description": self.exec_error,
+                    "description": exec_error,
                 }
                 urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
                 log.debug('3')

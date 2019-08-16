@@ -28,7 +28,7 @@ def _initiate_recognition(file_type, file_name, suggestion=None, package_path=No
     #Pass the sample to the class for further execution
     exec_sample = package_class(package_path)
     #Return the PID of the process spawned and execution time
-    return exec_sample.target_pid, exec_sample.exec_error
+    return exec_sample.execute()
 
 
 def _found_target_class(module, name):
