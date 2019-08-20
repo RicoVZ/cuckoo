@@ -83,13 +83,13 @@ class darwin_analyser(object):
             if exec_error:
                 data = {
                     "status": "exception",
-                    "description": exec_error,
+                    "description": str(exec_error),
                 }
                 urllib2.urlopen("http://127.0.0.1:8000/status",urllib.urlencode(data)).read()
-                log.debug('3')
-            else:
-                TRACKED_PROCESSES.append(self.target_pid)
-                log.debug('Adding process to TRACKED_PROCESSES : %s',str(TRACKED_PROCESSES))
+                return
+
+            TRACKED_PROCESSES.append(self.target_pid)
+            log.debug('Adding process to TRACKED_PROCESSES : %s',str(TRACKED_PROCESSES))
 
 
     def _check_pid(self, pid):
