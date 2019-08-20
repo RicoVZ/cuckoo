@@ -51,9 +51,7 @@ class InitiateMonitor(object):
         else:
             return False
 
-
     def _log(self):
-        #buffer_events = []
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
         socket_host.send("JSON\n")
@@ -62,19 +60,5 @@ class InitiateMonitor(object):
             if TRACKED_PROCESSES:
                 if self._check_relevance(log):
                     socket_host.send(log.encode())
-
-            #     iteration_control = True
-            #     #if there are buffer logged before sample is triggered
-            #     if buffer_events:
-            #         while iteration_control:
-            #             for item in buffer_events:
-            #                 if self._check_relevance(item):
-            #                     socket_host.send(item.encode())
-            #             iteration_control = False
-            #     #check if log is relevant to target anyways
-            #     if self._check_relevance(log):
-            #         socket_host.send(log.encode())
-            # else:
-            #     buffer_events += log.encode()
 
 
