@@ -3,9 +3,12 @@ from lib.common.process import TRACKED_PROCESSES
 import subprocess
 import socket
 import json
+import logging
 import signal
 import sys
 import os
+
+logger = logging.getLogger(__name__)
 
 class InitiateMonitor(object):
     def __init__(self, config):
@@ -52,13 +55,20 @@ class InitiateMonitor(object):
             return False
 
     def _log(self):
+        buffer = []
+        iteration_control = True
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
         socket_host.send("JSON\n")
         socket_host.send("XNUMON\n")
         for log in self._execute(["sudo", "/usr/local/sbin/xnumon", "-d"]):
             if TRACKED_PROCESSES:
+                if iteration_control:
+                    for buf in buffer:
+                        if self._check_relevance(buf):
+                            socket_host.send(buf.encode())
+                    iteration_control = False
                 if self._check_relevance(log):
                     socket_host.send(log.encode())
-
-
+            else:
+                buffer.append(log)
