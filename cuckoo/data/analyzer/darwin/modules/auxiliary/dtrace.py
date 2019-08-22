@@ -24,17 +24,27 @@ class MonitorDtrace(object):
             raise subprocess.CalledProcessError(return_code, cmd)
     
     def _log(self):
+        buffer = []
+        iteration_control = True
         socket_host = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         socket_host.connect((self.config.ip, self.config.port))
         socket_host.send("JSON\n")
         socket_host.send("DTRACE\n")
         for log in self._execute(["sudo","dtrace","-qn",self.dtrace_command]):
             if TRACKED_PROCESSES:
+                if iteration_control:
+                    for buf in buffer:
+                        json_buf = json.loads(buf)
+                        if json_buf['pid'] in TRACKED_PROCESSES:
+                            socket_host.send(buf.encode())
+                    iteration_control = False
                 string = log.encode().replace("'",'"')
                 try:
                     json_string = json.loads(string)
                     if json_string['pid'] in TRACKED_PROCESSES:
-                        logger.debug("log: %s",log)
-                        # socket_host.send(log.encode())
+                        socket_host.send(string.encode())
                 except Exception as error:
-                    log.warning("JSON dump error: %s",error)
+                    logger.warning("JSON dump error: %s",error)
+            else:
+                string = log.encode().replace("'",'"')
+                buffer.append(string)
