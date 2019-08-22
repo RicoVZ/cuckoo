@@ -16,6 +16,7 @@ from cuckoo.core.extract import ExtractManager
 from .platform.windows import WindowsMonitor
 from .platform.linux import LinuxSystemTap
 from .platform.darwin import DarwinXnumonParser
+from .platform.darwin import DarwinDtraceParser
 
 log = logging.getLogger(__name__)
 
@@ -298,6 +299,7 @@ class BehaviorAnalysis(Processing):
             WindowsMonitor(self, task_id=self.task["id"]),
             LinuxSystemTap(self),
             DarwinXnumonParser(self),
+            DarwinDtraceParser(self),
 
             # Reboot information.
             RebootInformation(self),
