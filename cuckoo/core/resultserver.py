@@ -240,11 +240,11 @@ class JsonHandler(ProtocolHandler):
     def init(self):
         stream_type = self.handler.read_newline()
         if stream_type == 'XNUMON':
-            file_name = "logs/process.xnumon"
+            file_name = "logs/logs.xnumon"
         elif stream_type == 'DTRACE':
             file_name = "logs/logs.dtrace"
         self.logpath = os.path.join(self.handler.storagepath,file_name)
-        log.debug("Agent is streaming JSON data. Storing them to %s.log",stream_type)
+        log.debug("Agent is streaming JSON data. Storing them to log.%s",stream_type.lower())
         try:
             self.fd = open_exclusive(self.logpath, "wb")
         except:
