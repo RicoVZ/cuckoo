@@ -9,7 +9,9 @@ import socket
 import logging
 import time
 import threading
+import subprocess
 from modules.auxiliary.xnumon import InitiateMonitor
+from modules.auxiliary.dtrace import MonitorDtrace
 from lib.common.process import TRACKED_PROCESSES
 from lib.common.results import NetlogHandler
 from lib.common.config import Config
@@ -40,6 +42,15 @@ class darwin_analyser(object):
         xnumon_daemon.daemon = True
         xnumon_daemon.start()
         log.debug("Started Xnumon Daemon")
+        #Initiating DTrace daemon
+        output = subprocess.Popen(['csrutil','status'],stdout=subprocess.PIPE).communicate()[0]
+        if 'disabled' in output:
+            dtrace_daemon = threading.Thread(target=self._initiate_dtrace)
+            dtrace_daemon.daemon = True
+            dtrace_daemon.start()
+            log.debug("SIP is disabled. Started DTrace Daemon")
+        else:
+            log.debug("SIP is enabled. Disable it to deploy DTrace Auxiliary Module")
         #Storing the package path
         self.package_path = os.path.join(os.getcwd(), self.config.file_name)
         # Determining target type File/URL
@@ -52,6 +63,9 @@ class darwin_analyser(object):
     def _initiate_xnumon(self):
         monitor = InitiateMonitor(self.config)
         monitor._run()
+
+    def _initiate_dtrace(self):
+        monitor_dtrace = MonitorDtrace(self.config)
 
     def _detect_target(self):
         if self.config.category == "file":
@@ -103,7 +117,7 @@ class darwin_analyser(object):
     def _monitor_timeout(self):
         data = {
             "status": "complete",
-            "description": "Timeout is encountered, aborting analysis",
+            "description": "Timeout encountered, aborting analysis",
         }
         timeout_counter = 0
         iteration_control = True
