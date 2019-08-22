@@ -93,7 +93,7 @@ def _verify_xnumon(path):
 
 class DarwinDtraceParser(BehaviorHandler):
     
-    key = "processes"
+    key = "darwin_api"
 
     def __init__(self,path):
         self.matched = False
@@ -110,12 +110,18 @@ class DarwinDtraceParser(BehaviorHandler):
                 for line in file:
                     json_string = json.loads(line)
                     proc_dict = {
+                        "type":"open_syscall",
                         "pid":json_string['pid'],
                         "file_path":json_string['file_path'],
-                        "open_flag":json_string['flag']
+                        "open_flag":json_string['flag'],
                     }
                     self.processes.append(proc_dict)
             return self.processes
+    
+    def run(self):
+        if not self.matched:
+            return
+        return self.processes
 
 def _verify_dtrace(path):
     log_line = open(path).readline()
