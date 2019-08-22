@@ -25,20 +25,20 @@ class DarwinXnumonParser(BehaviorHandler):
                         continue
                     else:
                         if json_string['eventcode'] == 2:
-
-                            proc_dict = {
-                                "type":"process",
-                                "pid":json_string["subject"]["pid"],
-                                "ppid":json_string["subject"]["ancestors"][0]["exec_pid"],
-                                "process_name":json_string['argv'][-1].split('/')[-1],
-                                "first_seen":json_string['image']['ctime'],
-                                "command_line":" ".join(json_string['argv']),
-                                "calls":"",
-                                "path":json_string['image']['path'],
-                                "signature": json_string['image']['signature'],
-                                "origin":json_string['image']['origin']
-                            }
-                            self.processes.append(proc_dict)
+                            if not 'reconstructed' in json_string['subject']:
+                                proc_dict = {
+                                    "type":"process",
+                                    "pid":json_string["subject"]["pid"],
+                                    "ppid":json_string["subject"]["ancestors"][0]["exec_pid"],
+                                    "process_name":json_string['argv'][-1].split('/')[-1],
+                                    "first_seen":json_string['image']['ctime'],
+                                    "command_line":" ".join(json_string['argv']),
+                                    "calls":"",
+                                    "path":json_string['image']['path'],
+                                    "signature": json_string['image']['signature'],
+                                    "origin":json_string['image']['origin']
+                                }
+                                self.processes.append(proc_dict)
                         elif json_string['eventcode'] == 3:
                             proc_dict = {
                                 "type":"process",
