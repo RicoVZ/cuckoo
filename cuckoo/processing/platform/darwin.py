@@ -1,5 +1,8 @@
 import json
+import logging
 from cuckoo.common.abstracts import BehaviorHandler
+
+log = logging.getLogger(__name__)
 class DarwinXnumonParser(BehaviorHandler):
 
     key = "processes"
@@ -81,10 +84,49 @@ def _verify_xnumon(path):
         try:
             if json_string['version']:
                 return True
-        except:
-            #log.warning("Log doesn't contain Xnumon logs.Aborting processing module")
+        except Exception as error:
+            log.warning("Log doesn't match Xnumon structure: %s",error)
             return False
-    except:
-        #log.warning("Log can't be parsed by JSON.Aborting processing module")
+    except Exception as error:
+        log.warning("JSON parsing error: %s", error)
         return False
 
+class DarwinDtraceParser(BehaviorHandler):
+    
+    key = "processes"
+
+    def __init__(self,path):
+        self.matched = False
+        self.processes = []
+
+    def handles_path(self,path):
+        if path.endswith("dtrace"):
+            self.matched = True
+            return True
+
+    def parse(self,path):
+        if _verify_dtrace(path):
+            with open(path) as file:
+                for line in file:
+                    json_string = json.loads(line)
+                    proc_dict = {
+                        "pid":json_string['pid'],
+                        "file_path":json_string['file_path'],
+                        "open_flag":json_string['flag']
+                    }
+                    self.processes.append(proc_dict)
+            return self.processes
+
+def _verify_dtrace(path):
+    log_line = open(path).readline()
+    try:
+        json_string = json.loads(log_line)
+        try:
+            if json_string['pid']:
+                return True
+        except Exception as error:
+            log.warning("Log doesn't match Dtrace structure: %s",error)
+            return False
+    except Exception as error:
+        log.warning("JSON parsing error: %s", error)
+        return False
