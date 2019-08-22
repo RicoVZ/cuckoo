@@ -5,7 +5,7 @@ import socket
 import subprocess
 import json
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class MonitorDtrace(object):
     def __init__(self,config):
@@ -34,6 +34,7 @@ class MonitorDtrace(object):
                 try:
                     json_string = json.loads(string)
                     if json_string['pid'] in TRACKED_PROCESSES:
-                        socket_host.send(log.encode())
+                        logger.debug("log: %s",log)
+                        # socket_host.send(log.encode())
                 except Exception as error:
                     log.warning("JSON dump error: %s",error)
