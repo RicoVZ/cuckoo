@@ -155,14 +155,18 @@ class GuacamoleWrapper extends Hookable {
 
       try {
 
+        const csrf = document.querySelector('.csrf_placeholder input').value;
+
         $.ajax({
           url: '/analysis/api/tasks/info/',
           type: 'POST',
           dataType: 'json',
           contentType: "application/json; charset=utf-8",
+          headers: {
+            'X-CSRF-Token': csrf
+          },
           data: JSON.stringify({
-            "task_ids": [id],
-            'csrfmiddlewaretoken': document.querySelector('.csrf_placeholder input').value
+            "task_ids": [id]
           }),
           success: (response, xhr) => {
             if(response.status === true) {

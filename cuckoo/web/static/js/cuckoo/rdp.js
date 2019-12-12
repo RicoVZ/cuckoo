@@ -1,2 +1,1398 @@
-!function(){function e(t,n,o){function i(s,a){if(!n[s]){if(!t[s]){var c="function"==typeof require&&require;if(!a&&c)return c(s,!0);if(r)return r(s,!0);var l=new Error("Cannot find module '"+s+"'");throw l.code="MODULE_NOT_FOUND",l}var u=n[s]={exports:{}};t[s][0].call(u.exports,function(e){var n=t[s][1][e];return i(n||e)},u,u.exports,e,t,n,o)}return n[s].exports}for(var r="function"==typeof require&&require,s=0;s<o.length;s++)i(o[s]);return i}return e}()({1:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(n,"__esModule",{value:!0});var a=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),c=e("./Hookable"),l=o(c),u=function(e){function t(e){i(this,t);var n=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));if(n.hooks={connect:[],error:[],end:[]},!window.Guacamole){var o;return console.error("No Guacamole! Did you forget to process the avocados in src/scripts/rdp/guac?"),o=!1,r(n,o)}return n.display=e.display,n.parent=e.client,n.client=null,n._mouse=null,n._keyboard=null,n}return s(t,e),a(t,[{key:"connect",value:function(){var e=this,t=new Guacamole.HTTPTunnel("tunnel/"),n=this.client=new Guacamole.Client(t);this.display.html(n.getDisplay().getElement()),t.onerror=n.onerror=function(t){switch(t.code){case 523:break;default:e.dispatchHook("error",t)}},t.onstatechange=function(t){2==t&&e.dispatchHook("ended")},n.connect(),this.dispatchHook("connect",n)}},{key:"mouse",value:function(){var e=this,t=!(arguments.length>0&&void 0!==arguments[0])||arguments[0];if(this.client&&t){this._mouse=new Guacamole.Mouse(this.client.getDisplay().getElement());var n=function(t){return e.client.sendMouseState(t)};this._mouse.onmousemove=this._mouse.onmouseup=this._mouse.onmousedown=function(t){e.parent.toolbar.buttons.control.toggled&&n(t)}}}},{key:"keyboard",value:function(){var e=this,t=!(arguments.length>0&&void 0!==arguments[0])||arguments[0];this.client&&(t?(this._keyboard=new Guacamole.Keyboard(document),this._keyboard.onkeydown=function(t){e.parent.toolbar.buttons.control.toggled&&e.client.sendKeyEvent(1,t)},this._keyboard.onkeyup=function(t){e.parent.toolbar.buttons.control.toggled&&e.client.sendKeyEvent(0,t)}):this._keyboard=null)}},{key:"getCanvas",value:function(){return!!this.client&&this.client.getDisplay().getDefaultLayer().getCanvas()}},{key:"checkReady",value:function(e){var t=arguments.length>1&&void 0!==arguments[1]&&arguments[1],n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:"completed",o=function(){return new Promise(function(t,o){try{$.ajax({url:"/analysis/api/tasks/info/",type:"POST",dataType:"json",contentType:"application/json; charset=utf-8",data:JSON.stringify({task_ids:[e]}),success:function(o,i){if(o.status!==!0)throw"ajax error";var r=o.data[e];r.status===n?t(!0,r):t(!1,r)},error:function(e){throw e}})}catch(e){return o(e)}})};return t===!0?new Promise(function(e,t){var n=setInterval(function(){o().then(function(t){if(t===!0)return n=clearInterval(n),e(t)},function(e){return t(e)})},1e3)}).catch(function(e){return console.log(e)}):o()}}]),t}(l.default);n.default=u},{"./Hookable":2}],2:[function(e,t,n){"use strict";function o(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(n,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),r=function(){return!0},s=function(){function e(){o(this,e),this.hooks={}}return i(e,[{key:"on",value:function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:r;return this.hooks[e]||(this.hooks[e]=[]),this.hooks[e].push(t),this}},{key:"dispatchHook",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};return this.hooks[t]&&this.hooks[t].forEach(function(t){t instanceof Function&&t.call(e,n)}),this}}]),e}();n.default=s},{}],3:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e){var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1];if(!e.length)return!1;var n=e.html();return t?$(n):n}function s(e){var t=arguments.length>1&&void 0!==arguments[1]&&arguments[1],n={};for(var o in e)e[o]instanceof Function?n[o]=e[o].call(t||window):n[o]=e[o];return n}Object.defineProperty(n,"__esModule",{value:!0}),n.RDPRender=void 0;var a=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),c=e("./Hookable"),l=(o(c),function(){function e(t,n){i(this,e),this.client=t,this.template=r(n),this.active=!1}return a(e,[{key:"render",value:function(){this.template&&(this.client.$.find(".rdp-app__viewport").html(this.template),this.active=!0)}},{key:"destroy",value:function(){this.template.remove()}}]),e}()),u=function e(t){var n=this,o=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};i(this,e),this.parent=t,this.dialog=o,this.interactions=o.interactions||{},this.model=s(o.model||{});var r=this.parent.base.find("form.rdp-dialog__options");this.parent.base.find("button").on("click",function(e){var t=$(e.currentTarget).val();n.interactions[t]&&r.submit(function(){return n.interactions[t](n.parent)})}),r.bind("submit",function(e){e.preventDefault()})},f=function(){function e(t){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};i(this,e),this.client=t,this.base=n.el,this.interaction=null,this.activeModel=null,this.dialogs=n.dialogs||{},this.isOpen=this.base.prop("open"),this.onClose=null,this.beforeRender=null,this.selector=null}return a(e,[{key:"render",value:function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};if(!this.isOpen){t.onClose&&t.onClose instanceof Function&&(this.onClose=t.onClose),t.beforeRender&&t.beforeRender instanceof Function&&(this.beforeRender=t.beforeRender);var n=this.dialogs[e];if(n){var o=r(n.template);this.beforeRender&&this.beforeRender(),this.base.find(".rdp-dialog__body").append(o),this.interaction=new u(this,n),this._injectModel(this.interaction.model),this.open(),n.render&&n.render(this,this.interaction)}return n}}},{key:"open",value:function(){this.isOpen||(this.client.$.addClass("dialog-active"),this.base.attr("open",!0),this.isOpen=!0,this.client.toolbar.disable(),this.client.snapshots.lock(!0))}},{key:"close",value:function(){var e=this;this.onClose&&setTimeout(function(){e.onClose(),e.onClose=null},150),this.client.$.removeClass("dialog-active"),this.base.attr("open",!1),this.base.find(".rdp-dialog__body").empty(),this.activeModel=null,this.interaction=null,this.selector=null,this.isOpen=!1,this.client.toolbar.enable(),this.client.snapshots.lock(!1)}},{key:"_injectModel",value:function(e){if(e&&(this.activeModel=e),this.activeModel)for(var t in this.activeModel)this.base.find("*[data-model='"+t+"']").text(e[t])}},{key:"update",value:function(){this._injectModel()}}]),e}();n.default=f,n.RDPRender=l},{"./Hookable":2}],4:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(n,"__esModule",{value:!0}),n.RDPSnapshotSelector=n.RDPSnapshotService=void 0;var a=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),c=e("./Hookable"),l=o(c),u=function(e){function t(e,n){i(this,t);var o=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return o.$=e,o.service=n,o.hooks={added:[],removed:[]},o}return s(t,e),a(t,[{key:"add",value:function(e){var t=this,n=$('\n      <li data-snapshot-id="'+e.id+'">\n        <figure><img src="'+e.data+'" alt="snapshot" /></figure>\n        <div class="rdp-snapshots--controls">\n          <a href="snapshot:remove"><i class="fa fa-remove"></i></a>\n        </div>\n      </li>\n    ');this.$.prepend(n),this.dispatchHook("added",n),n.find('a[href="snapshot:remove"]').bind("click",function(e){e.preventDefault(),t.service.locked||(t.service.remove(n.data("snapshotId")),n.remove(),t.dispatchHook("removed"))})}}]),t}(l.default),f=function e(t){i(this,e),this.id=t,this.data=null},d=function(e){function t(e){i(this,t);var n=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return n.client=e,n.snapshots=[],n.bar=new u(n.client.$.find("#rdp-snapshot-collection"),n),n.count=0,n.locked=!1,n.hooks={create:[],remove:[]},n}return s(t,e),a(t,[{key:"create",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";if(!this.locked&&0!=e.length){var t=new f(this.count);t.data=e,this.snapshots.push(t),this.count=this.count+1,this.bar.add(t),this.dispatchHook("create",t)}}},{key:"remove",value:function(e){var t=!1;this.snapshots.forEach(function(n,o){n.id==e&&(t=o)}),t!==!1&&this.snapshots.splice(t,1),this.dispatchHook("remove",{})}},{key:"total",value:function(){return this.snapshots.length}},{key:"lock",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:void 0;void 0===e?this.locked=!!this.locked:this.locked=e}},{key:"capture",value:function(e){return this.client.service.getCanvas().toDataURL()}}]),t}(l.default),h=function(e){function t(e,n){i(this,t);var o=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return o.el=e,o.snapshots=[],o.selected=[],o.service=n||null,o.hooks={submit:[],selected:[],deselected:[]},o.populate(function(){o.el.on("submit",function(e){e.preventDefault(),o.dispatchHook("submit",o.selected)}),o.el.find('input[type="checkbox"]').bind("change",function(e){var t=$(e.currentTarget);if(t.is(":checked")){var n=parseInt(t.val()),i=o.service.snapshots.find(function(e){return e.id==n});o.dispatchHook("selected",i)}else o.dispatchHook("deselected")}),o.on("selected",function(e){return o.selected.push(e)}),o.on("deselected",function(){return o.selected.pop()})}),o}return s(t,e),a(t,[{key:"populate",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:function(){};if(!this.service)return e();for(var t in this.service.snapshots){var n=this.service.snapshots[t],o=$('\n        <li>\n          <label for="snapshot-'+n.id+'">\n            <input type="checkbox" name="snapshot-selection[]" value="'+n.id+'" id="snapshot-'+n.id+'" />\n            <span class="snapshot-selection-image">\n              <img src="'+n.data+'" alt="snapshot-'+n.id+'" />\n            </span>\n          </label>\n        </li>\n      ');this.el.find("ul").append(o)}return e()}},{key:"commit",value:function(){var e=this;return new Promise(function(t,n){var o=e.selected;$.ajax({url:"/analysis/"+e.service.client.id+"/control/screenshots/",type:"POST",dataType:"json",contentType:"application/json; charset=utf-8",data:JSON.stringify(o),success:function(e,n){t()},error:function(e){n(e)}})})}}]),t}(l.default);n.RDPSnapshotService=d,n.RDPSnapshotSelector=h},{"./Hookable":2}],5:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e){return e.ctrlKey||e.metaKey||e.shiftKey||e.altKey}Object.defineProperty(n,"__esModule",{value:!0});var c=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),l=e("./Hookable"),u=o(l),f=e("./RDPToolbarButton"),d=function(e){function t(e){i(this,t);var n=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return n.client=e,n.buttons={fullscreen:new f.RDPToolbarButton(e.$.find('button[name="fullscreen"]'),{client:e}),snapshot:new f.RDPSnapshotButton(e.$.find('button[name="screenshot"]'),{client:e}),control:new f.RDPToolbarButton(e.$.find('button[name="control"]'),{client:e,holdToggle:!0})},n.buttons.fullscreen.on("click",function(){CuckooWeb.isFullscreen()?CuckooWeb.exitFullscreen():CuckooWeb.requestFullscreen(document.getElementById("rdp-client"))}),CuckooWeb.onFullscreenChange(function(e){return n.client.$.toggleClass("fullscreen",CuckooWeb.isFullscreen())}),n.buttons.snapshot.on("click",function(){var e=n.client.snapshots.capture();n.client.snapshots.create(e)}),n.buttons.control.on("toggle",function(e){e?(n.client.service.mouse(!0),n.client.service.keyboard(!0)):(n.client.service.mouse(!1),n.client.service.keyboard(!1))}),$("body").on("keydown",function(e){if(!a(e)&&!n.buttons.control.toggled)switch(e.keyCode){case 83:n.buttons.snapshot.dispatchHook("click"),n.buttons.snapshot.blink();break;case 70:n.buttons.fullscreen.dispatchHook("click"),n.buttons.fullscreen.blink();break;case 67:n.buttons.control.$.trigger("mousedown")}}),n}return s(t,e),c(t,[{key:"disable",value:function(){for(var e in this.buttons)this.buttons[e].disable(!0)}},{key:"enable",value:function(){for(var e in this.buttons)this.buttons[e].disable(!1)}}]),t}(u.default);n.default=d},{"./Hookable":2,"./RDPToolbarButton":6}],6:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}Object.defineProperty(n,"__esModule",{value:!0}),n.RDPSnapshotButton=n.RDPToolbarButton=void 0;var a=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),c=e("./Hookable"),l=o(c),u=function(e){function t(e){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};i(this,t);var o=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));return o.$=e,o.client=n.client,o.holdToggle=n.holdToggle||!1,o.toggled=o.$.hasClass("active"),o.isDisabled=!!o.$.attr("disabled"),o.hooks={click:[],toggle:[],disabled:[]},o.$.bind("mousedown",function(e){o.dispatchHook("click",{}),o.holdToggle&&(o.$.toggleClass("active"),o.toggled=o.$.hasClass("active"),o.dispatchHook("toggle",o.toggled))}),o}return s(t,e),a(t,[{key:"disable",value:function(e){void 0===e?this.$.prop("disabled",!!this.disabled):this.$.prop("disabled",e),this.disabled=this.$.prop("disabled"),this.dispatchHook("disabled")}},{key:"blink",value:function(){var e=this;this.$.addClass("active"),setTimeout(function(){return e.$.removeClass("active")},150)}}]),t}(l.default),f=function(e){function t(e){var n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{};i(this,t);var o=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e,n));return o.$=o.$.parent(),o}return s(t,e),a(t,[{key:"update",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]&&arguments[0],n=this.client.snapshots.total();this.$.find(".button-badge").text(n),t?(2==n&&this.$.find(".ss-v-e-3").removeClass("in"),1==n&&this.$.find(".ss-v-e-2").removeClass("in"),0==n&&(this.$.find(".ss-v-e-1").removeClass("in"),this.$.find(".button-badge").text(""))):(n<=3&&this.$.find(".ss-v-e-"+n).addClass("in"),this.$.find("button").addClass("shutter-in"),setTimeout(function(){return e.$.find("button").removeClass("shutter-in")},1500))}},{key:"disable",value:function(e){void 0===e?this.$.find("button").prop("disabled",!!this.disabled):this.$.find("button").prop("disabled",e),this.isDisabled=this.$.find("button").prop("disabled"),this.dispatchHook("disabled",this.isDisabled)}}]),t}(u);n.RDPToolbarButton=u,n.RDPSnapshotButton=f},{"./Hookable":2}],7:[function(e,t,n){"use strict";function o(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}var a=function(){function e(e,t){for(var n=0;n<t.length;n++){var o=t[n];o.enumerable=o.enumerable||!1,o.configurable=!0,"value"in o&&(o.writable=!0),Object.defineProperty(e,o.key,o)}}return function(t,n,o){return n&&e(t.prototype,n),o&&e(t,o),t}}(),c=e("./Hookable"),l=o(c),u=e("./GuacWrap"),f=o(u),d=e("./RDPToolbar"),h=o(d),p=e("./RDPSnapshotService"),b=e("./RDPDialog"),v=o(b),y=function(e){function t(e){i(this,t);var n=r(this,(t.__proto__||Object.getPrototypeOf(t)).call(this));n.$=e||null,n.id=e.data("taskId");var o=n,s=n.id;return n.service=new f.default({display:e.find("#guacamole-display"),client:n}),n.snapshots=new p.RDPSnapshotService(n),n.toolbar=new h.default(n),n.dialog=new v.default(n,{el:e.find("#rdp-dialog"),dialogs:{snapshots:{template:$("template#rdp-dialog-snapshots"),model:{total:function(){return n.snapshots.total()}},interactions:{cancel:function(e){e.close()},proceed:function(e){e.selector.el.submit()}},render:function(e,t){e.selector=new p.RDPSnapshotSelector(e.base.find("form#snapshot-selection-form"),n.snapshots);var o=function(){return e.base.find('span[data-model="selected"]').text(e.selector.selected.length)};e.selector.on("submit",function(t){e.selector.commit().then(function(){e.close()},function(e){console.log(e)})}),e.selector.on("selected",o),e.selector.on("deselected",o)}},completed:{template:$("template#rdp-dialog-completed"),interactions:{close:function(e){window.close()},report:function(e){window.location="/analysis/"+s+"/summary/"}}}}}),n.errorDialog=new b.RDPRender(n,$("template#rdp-error")),n.connectingDialog=new b.RDPRender(n,$("template#rdp-connecting")),n.connectingDialog.render(),n.snapshots.on("create",function(e){n.toolbar.buttons.snapshot.update()}),n.snapshots.bar.on("removed",function(){n.toolbar.buttons.snapshot.update(!0)}),setTimeout(function(){n.service.connect(),n.service.on("ended",function(){n.toolbar.disable(),e.find(".rdp-status").addClass("done")}),n.service.checkReady(n.id,!0,"reported").then(function(e,t){if(e===!0)if(n.snapshots.total()>0){n.dialog.render("snapshots",{onClose:function(){return o.dialog.render("completed")}})}else n.dialog.render("completed",{beforeRender:function(){return o.errorDialog?o.errorDialog.destroy():function(){}}})}).catch(function(e){return console.log(e)}),n.service.on("error",function(){n.errorDialog.render()})},1500),n.commonBindings(),n}return s(t,e),a(t,[{key:"commonBindings",value:function(){var e=this,t=function(){var t=!1;e.$.find("#toggle-properties").bind("click",function(e){e.preventDefault(),$(e.currentTarget).toggleClass("active",!t),t=$(e.currentTarget).hasClass("active")}),$("body").bind("click",function(n){var o=$(n.target),i=o.parents(".rdp-details").length>0;t&&!i&&e.$.find("#toggle-properties").trigger("click")})};t()}}]),t}(l.default);$(function(){if($("#rdp-client").length){new y($("#rdp-client"))}})},{"./GuacWrap":1,"./Hookable":2,"./RDPDialog":3,"./RDPSnapshotService":4,"./RDPToolbar":5}]},{},[7]);
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable2 = require('./Hookable');
+
+var _Hookable3 = _interopRequireDefault(_Hookable2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var GuacamoleWrapper = function (_Hookable) {
+  _inherits(GuacamoleWrapper, _Hookable);
+
+  function GuacamoleWrapper(props) {
+    _classCallCheck(this, GuacamoleWrapper);
+
+    // api hooks
+    var _this = _possibleConstructorReturn(this, (GuacamoleWrapper.__proto__ || Object.getPrototypeOf(GuacamoleWrapper)).call(this));
+
+    _this.hooks = {
+      connect: [],
+      error: [],
+      end: []
+
+      // detect Guacamole
+    };if (!window.Guacamole) {
+      var _ret;
+
+      console.error('No Guacamole! Did you forget to process the avocados in src/scripts/rdp/guac?');
+      return _ret = false, _possibleConstructorReturn(_this, _ret);
+    }
+
+    // properties
+    _this.display = props.display;
+    _this.parent = props.client; // 'parent' client wrapper
+    _this.client = null; // reserved for the Guacamole client (created on connect)
+    _this._mouse = null;
+    _this._keyboard = null;
+
+    return _this;
+  }
+
+  /*
+    GuacamoleWrapper.connect
+    - connects to the RDP server
+   */
+
+
+  _createClass(GuacamoleWrapper, [{
+    key: 'connect',
+    value: function connect() {
+      var _this2 = this;
+
+      // create the client
+      var tunnel = new Guacamole.HTTPTunnel("tunnel/");
+      var guac = this.client = new Guacamole.Client(tunnel);;
+
+      // create the display
+      this.display.html(guac.getDisplay().getElement());
+
+      tunnel.onerror = guac.onerror = function (error) {
+        // skipping over error codes, for instance: the ending session is
+        // also thrown as an error, so taking advantage of the status code to
+        // delegate the correct
+        switch (error.code) {
+          case 523:
+            break;
+          default:
+            _this2.dispatchHook('error', error);
+        }
+      };
+
+      tunnel.onstatechange = function (state) {
+        if (state == 2) {
+          _this2.dispatchHook('ended');
+        }
+      };
+
+      guac.connect();
+      this.dispatchHook('connect', guac);
+    }
+
+    /*
+      GuacamoleWrapper.mouse
+      - handles mouse interaction
+     */
+
+  }, {
+    key: 'mouse',
+    value: function mouse() {
+      var _this3 = this;
+
+      var enable = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+      if (!this.client) return;
+
+      if (enable) {
+        this._mouse = new Guacamole.Mouse(this.client.getDisplay().getElement());
+        var sendState = function sendState(state) {
+          return _this3.client.sendMouseState(state);
+        };
+
+        // apply sendState function
+        this._mouse.onmousemove = this._mouse.onmouseup = this._mouse.onmousedown = function (state) {
+          if (_this3.parent.toolbar.buttons.control.toggled) {
+            sendState(state);
+          }
+        };
+      }
+    }
+
+    /*
+      GuacamoleWrapper.keyboard
+      - handles keyboard interaction
+     */
+
+  }, {
+    key: 'keyboard',
+    value: function keyboard() {
+      var _this4 = this;
+
+      var enable = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+
+      if (!this.client) return;
+
+      if (enable) {
+        this._keyboard = new Guacamole.Keyboard(document);
+        this._keyboard.onkeydown = function (keysym) {
+          if (_this4.parent.toolbar.buttons.control.toggled) {
+            _this4.client.sendKeyEvent(1, keysym);
+          }
+        };
+        this._keyboard.onkeyup = function (keysym) {
+          if (_this4.parent.toolbar.buttons.control.toggled) {
+            _this4.client.sendKeyEvent(0, keysym);
+          }
+        };
+      } else {
+        this._keyboard = null;
+      }
+    }
+
+    /*
+      GuacamoleWrapper.getCanvas
+      - shortcut for returning default guac layer (active tunnel viewport)
+     */
+
+  }, {
+    key: 'getCanvas',
+    value: function getCanvas() {
+      if (this.client) {
+        return this.client.getDisplay().getDefaultLayer().getCanvas();
+      }
+      return false;
+    }
+
+    /*
+      GuacamoleWrapper.checkReady
+       - polls to /info api call for checking if the task did finish
+      - example:
+         // poll
+        client.checkReady(1, true, 'completed').then(ready => {
+          if(ready) {
+            console.log('vm is ready');
+          } else {
+            console.log('vm is not ready');
+          }
+        });
+       - ID                = Number
+      - poll              = true|false
+      - pollUntillStatus  = "completed|reported"
+       - returns: [ready{Bool},]
+      */
+
+  }, {
+    key: 'checkReady',
+    value: function checkReady(id) {
+      var poll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+      var pollUntillStatus = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'completed';
+
+
+      var iv = null;
+
+      // the verification call as a promise
+      var readyCall = function readyCall() {
+        return new Promise(function (resolve, reject) {
+
+          try {
+
+            var csrf = document.querySelector('.csrf_placeholder input').value;
+
+            $.ajax({
+              url: '/analysis/api/tasks/info/',
+              type: 'POST',
+              dataType: 'json',
+              contentType: "application/json; charset=utf-8",
+              headers: {
+                'X-CSRF-Token': csrf
+              },
+              data: JSON.stringify({
+                "task_ids": [id]
+              }),
+              success: function success(response, xhr) {
+                if (response.status === true) {
+                  var t = response.data[id];
+                  // wait untill the file is reported
+                  if (t.status === pollUntillStatus) {
+                    resolve(true, t);
+                  } else {
+                    resolve(false, t);
+                  }
+                } else {
+                  throw "ajax error";
+                  return;
+                }
+              },
+              error: function error(err) {
+                throw err;
+              }
+            });
+          } catch (err) {
+            return reject(err);
+          }
+        });
+      };
+
+      if (poll === true) {
+        return new Promise(function (resolve, reject) {
+          var iv = setInterval(function () {
+            readyCall().then(function (result) {
+              if (result === true) {
+                iv = clearInterval(iv);
+                return resolve(result);
+              }
+            }, function (err) {
+              return reject(err);
+            });
+          }, 1000);
+        }).catch(function (e) {
+          return console.log(e);
+        });
+      } else {
+        // return the promise
+        return readyCall();
+      }
+    }
+  }]);
+
+  return GuacamoleWrapper;
+}(_Hookable3.default);
+
+exports.default = GuacamoleWrapper;
+
+},{"./Hookable":2}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/*
+  Note: handy class to extend when you want a dead simple hook cycle system for anything you'll want to make
+  triggerable.
+
+  usage:
+
+  const Hookable = require('./path/to/Hookable...');
+
+  class SomeClass extends Hookable {
+
+    constructor() {
+      super();
+
+      // define the hooks as an object with empty arrays
+      this.hooks = {
+        'trigger': []
+      }
+
+    }
+
+    // dispatching hook cycles within the class
+    awesomeMethod() {
+      this.dispatchHook('trigger', {
+        foo: 'bar',
+        hello: 'world'
+      });
+    }
+
+  }
+
+  // subscribe to hooks:
+  let hookie = new SomeClass();
+
+  hookie.on('trigger', data => {
+    console.log(data.foo);
+  }).on('trigger', data => {
+    console.log(data.hello);
+  });
+
+  // now call the method that will dispatch the trigger event:
+  hookie.awesomeMethod(); // => 'bar', 'world'
+
+ */
+
+// empty function placeholder
+var noop = function noop() {
+  return true;
+};
+
+// hookable class wrapper
+
+var Hookable = function () {
+  function Hookable() {
+    _classCallCheck(this, Hookable);
+
+    this.hooks = {};
+  }
+
+  // subscribes a hook
+
+
+  _createClass(Hookable, [{
+    key: 'on',
+    value: function on(evt) {
+      var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : noop;
+
+      // create hook entry
+      if (!this.hooks[evt]) this.hooks[evt] = [];
+      this.hooks[evt].push(cb);
+      return this;
+    }
+
+    // runs a hook cycle
+
+  }, {
+    key: 'dispatchHook',
+    value: function dispatchHook() {
+      var _this = this;
+
+      var evt = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+      if (this.hooks[evt]) {
+        this.hooks[evt].forEach(function (hook) {
+          if (hook instanceof Function) {
+            hook.call(_this, data);
+          }
+        });
+      }
+      return this;
+    }
+  }]);
+
+  return Hookable;
+}();
+
+exports.default = Hookable;
+
+},{}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RDPRender = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable = require('./Hookable');
+
+var _Hookable2 = _interopRequireDefault(_Hookable);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function parseFragment(fragment) {
+  var parsejQuery = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+  if (!fragment.length) return false;
+  var result = fragment.html();
+  return parsejQuery ? $(result) : result;
+}
+
+function resolveModel(model) {
+  var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  var resolved = {};
+  for (var m in model) {
+    if (model[m] instanceof Function) {
+      resolved[m] = model[m].call(thisArg || window);
+    } else {
+      resolved[m] = model[m];
+    }
+  }
+  return resolved;
+}
+
+/*
+  The error state is not really a dialog, but this class will take care of rendering
+  an error inside the viewport as a substitute class.
+ */
+
+var RDPRender = function () {
+  function RDPRender(client, template) {
+    _classCallCheck(this, RDPRender);
+
+    this.client = client;
+    this.template = parseFragment(template);
+    this.active = false;
+  }
+
+  _createClass(RDPRender, [{
+    key: 'render',
+    value: function render() {
+      if (!this.template) return;
+      this.client.$.find('.rdp-app__viewport').html(this.template);
+      this.active = true;
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      this.template.remove();
+    }
+  }]);
+
+  return RDPRender;
+}();
+
+var DialogInteractionScheme = function DialogInteractionScheme(dialogs) {
+  var _this = this;
+
+  var dialog = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+  _classCallCheck(this, DialogInteractionScheme);
+
+  this.parent = dialogs;
+  this.dialog = dialog;
+  this.interactions = dialog.interactions || {};
+  this.model = resolveModel(dialog.model || {});
+
+  var form = this.parent.base.find('form.rdp-dialog__options');
+
+  // respond with an interaction according to the button clicked
+  // button[value]
+  this.parent.base.find('button').on('click', function (e) {
+    var answer = $(e.currentTarget).val();
+    if (_this.interactions[answer]) {
+      form.submit(function () {
+        return _this.interactions[answer](_this.parent);
+      });
+    }
+  });
+
+  // prevent the form from submitting when a button has been clicked
+  form.bind('submit', function (e) {
+    e.preventDefault();
+  });
+};
+
+var RDPDialog = function () {
+  function RDPDialog(client) {
+    var conf = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    _classCallCheck(this, RDPDialog);
+
+    this.client = client;
+    this.base = conf.el;
+    this.interaction = null;
+    this.activeModel = null;
+    this.dialogs = conf.dialogs || {};
+    this.isOpen = this.base.prop('open');
+    this.onClose = null;
+    this.beforeRender = null;
+
+    this.selector = null;
+  }
+
+  _createClass(RDPDialog, [{
+    key: 'render',
+    value: function render(d) {
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+
+      // don't render if a dialog is already open
+      if (this.isOpen) return;
+
+      // attach onClose handler
+      if (opts.onClose && opts.onClose instanceof Function) {
+        this.onClose = opts.onClose;
+      }
+
+      // attach beforeRender handler
+      if (opts.beforeRender && opts.beforeRender instanceof Function) {
+        this.beforeRender = opts.beforeRender;
+      }
+
+      var dialog = this.dialogs[d];
+
+      if (dialog) {
+        var ctx = parseFragment(dialog.template);
+        if (this.beforeRender) this.beforeRender();
+        this.base.find('.rdp-dialog__body').append(ctx);
+        this.interaction = new DialogInteractionScheme(this, dialog);
+        this._injectModel(this.interaction.model);
+        this.open();
+
+        // runs a callback after render for anything related.
+        if (dialog.render) dialog.render(this, this.interaction);
+      }
+
+      return dialog;
+    }
+
+    // opens the dialog
+
+  }, {
+    key: 'open',
+    value: function open() {
+      if (!this.isOpen) {
+        this.client.$.addClass('dialog-active');
+        this.base.attr('open', true);
+        this.isOpen = true;
+
+        // lock interface components whilst the dialog is open.
+        this.client.toolbar.disable();
+        this.client.snapshots.lock(true);
+      }
+    }
+
+    // closes the current dialog
+
+  }, {
+    key: 'close',
+    value: function close() {
+      var _this2 = this;
+
+      if (this.onClose) {
+        setTimeout(function () {
+          _this2.onClose();
+          _this2.onClose = null;
+        }, 150);
+      }
+
+      this.client.$.removeClass('dialog-active');
+      this.base.attr('open', false);
+      this.base.find('.rdp-dialog__body').empty();
+      this.activeModel = null;
+      this.interaction = null;
+      this.selector = null;
+      this.isOpen = false;
+
+      // re-enable other interface components again when closing
+      this.client.toolbar.enable();
+      this.client.snapshots.lock(false);
+    }
+
+    // injects the model (if it has a model) into the dialog.
+
+  }, {
+    key: '_injectModel',
+    value: function _injectModel(model) {
+      if (model) this.activeModel = model;
+      if (this.activeModel) {
+        for (var m in this.activeModel) {
+          this.base.find('*[data-model=\'' + m + '\']').text(model[m]);
+        }
+      }
+    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this._injectModel();
+    }
+  }]);
+
+  return RDPDialog;
+}();
+
+// export other functions
+
+
+exports.default = RDPDialog;
+exports.RDPRender = RDPRender;
+
+},{"./Hookable":2}],4:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RDPSnapshotSelector = exports.RDPSnapshotService = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable4 = require('./Hookable');
+
+var _Hookable5 = _interopRequireDefault(_Hookable4);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var SnapshotBar = function (_Hookable) {
+  _inherits(SnapshotBar, _Hookable);
+
+  function SnapshotBar(el, service) {
+    _classCallCheck(this, SnapshotBar);
+
+    var _this = _possibleConstructorReturn(this, (SnapshotBar.__proto__ || Object.getPrototypeOf(SnapshotBar)).call(this));
+
+    _this.$ = el;
+    _this.service = service;
+    _this.hooks = {
+      'added': [],
+      'removed': []
+    };
+
+    return _this;
+  }
+
+  // adds an item to the bar
+
+
+  _createClass(SnapshotBar, [{
+    key: 'add',
+    value: function add(s) {
+      var _this2 = this;
+
+      var template = $('\n      <li data-snapshot-id="' + s.id + '">\n        <figure><img src="' + s.data + '" alt="snapshot" /></figure>\n        <div class="rdp-snapshots--controls">\n          <a href="snapshot:remove"><i class="fa fa-remove"></i></a>\n        </div>\n      </li>\n    ');
+
+      // append this to the list
+      this.$.prepend(template);
+      this.dispatchHook('added', template);
+
+      template.find('a[href="snapshot:remove"]').bind('click', function (e) {
+        e.preventDefault();
+
+        if (_this2.service.locked) return;
+
+        _this2.service.remove(template.data('snapshotId'));
+        template.remove();
+        _this2.dispatchHook('removed');
+      });
+    }
+  }]);
+
+  return SnapshotBar;
+}(_Hookable5.default);
+
+var Snapshot = function Snapshot(id) {
+  _classCallCheck(this, Snapshot);
+
+  this.id = id;
+  this.data = null;
+};
+
+var RDPSnapshotService = function (_Hookable2) {
+  _inherits(RDPSnapshotService, _Hookable2);
+
+  function RDPSnapshotService(client) {
+    _classCallCheck(this, RDPSnapshotService);
+
+    var _this3 = _possibleConstructorReturn(this, (RDPSnapshotService.__proto__ || Object.getPrototypeOf(RDPSnapshotService)).call(this));
+
+    _this3.client = client;
+    _this3.snapshots = [];
+    _this3.bar = new SnapshotBar(_this3.client.$.find('#rdp-snapshot-collection'), _this3);
+    _this3.count = 0;
+    _this3.locked = false;
+
+    _this3.hooks = {
+      create: [],
+      remove: []
+    };
+
+    return _this3;
+  }
+
+  _createClass(RDPSnapshotService, [{
+    key: 'create',
+    value: function create() {
+      var image = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+
+
+      if (this.locked || image.length == 0) return;
+
+      var s = new Snapshot(this.count);
+      s.data = image;
+      this.snapshots.push(s);
+      this.count = this.count + 1;
+      this.bar.add(s);
+      this.dispatchHook('create', s);
+    }
+  }, {
+    key: 'remove',
+    value: function remove(id) {
+
+      var pos = false;
+
+      this.snapshots.forEach(function (snapshot, index) {
+        if (snapshot.id == id) pos = index;
+      });
+
+      if (pos !== false) {
+        this.snapshots.splice(pos, 1);
+      }
+
+      this.dispatchHook('remove', {});
+    }
+  }, {
+    key: 'total',
+    value: function total() {
+      return this.snapshots.length;
+    }
+  }, {
+    key: 'lock',
+    value: function lock() {
+      var isLocked = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+
+      if (isLocked === undefined) {
+        // toggle if no property had been given
+        this.locked = !!this.locked;
+      } else {
+        this.locked = isLocked;
+      }
+    }
+  }, {
+    key: 'capture',
+    value: function capture(canvas) {
+      return this.client.service.getCanvas().toDataURL();
+    }
+  }]);
+
+  return RDPSnapshotService;
+}(_Hookable5.default);
+
+// a class for handling the selection, for now somewhat specific maybe
+// but this will work for now.
+
+
+var RDPSnapshotSelector = function (_Hookable3) {
+  _inherits(RDPSnapshotSelector, _Hookable3);
+
+  function RDPSnapshotSelector(el, service) {
+    _classCallCheck(this, RDPSnapshotSelector);
+
+    var _this4 = _possibleConstructorReturn(this, (RDPSnapshotSelector.__proto__ || Object.getPrototypeOf(RDPSnapshotSelector)).call(this));
+
+    _this4.el = el; // should be a form
+    _this4.snapshots = [];
+    _this4.selected = [];
+    _this4.service = service || null;
+
+    _this4.hooks = {
+      submit: [],
+      selected: [],
+      deselected: []
+    };
+
+    _this4.populate(function () {
+
+      _this4.el.on('submit', function (e) {
+        e.preventDefault();
+        _this4.dispatchHook('submit', _this4.selected);
+      });
+
+      _this4.el.find('input[type="checkbox"]').bind('change', function (e) {
+        var t = $(e.currentTarget);
+        if (t.is(':checked')) {
+          var id = parseInt(t.val());
+          var snapshot = _this4.service.snapshots.find(function (s) {
+            return s.id == id;
+          });
+          _this4.dispatchHook('selected', snapshot);
+        } else {
+          _this4.dispatchHook('deselected');
+        }
+      });
+
+      _this4.on('selected', function (snapshot) {
+        return _this4.selected.push(snapshot);
+      });
+      _this4.on('deselected', function () {
+        return _this4.selected.pop();
+      });
+    });
+
+    return _this4;
+  }
+
+  // populates the selection list
+
+
+  _createClass(RDPSnapshotSelector, [{
+    key: 'populate',
+    value: function populate() {
+      var done = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+
+
+      if (!this.service) return done();
+
+      for (var s in this.service.snapshots) {
+
+        var snapshot = this.service.snapshots[s];
+
+        var template = $('\n        <li>\n          <label for="snapshot-' + snapshot.id + '">\n            <input type="checkbox" name="snapshot-selection[]" value="' + snapshot.id + '" id="snapshot-' + snapshot.id + '" />\n            <span class="snapshot-selection-image">\n              <img src="' + snapshot.data + '" alt="snapshot-' + snapshot.id + '" />\n            </span>\n          </label>\n        </li>\n      ');
+
+        this.el.find('ul').append(template);
+      }
+
+      return done();
+    }
+  }, {
+    key: 'commit',
+    value: function commit() {
+      var _this5 = this;
+
+      return new Promise(function (resolve, reject) {
+
+        var data = _this5.selected;
+
+        $.ajax({
+          url: '/analysis/' + _this5.service.client.id + '/control/screenshots/',
+          type: 'POST',
+          dataType: 'json',
+          contentType: "application/json; charset=utf-8",
+          data: JSON.stringify(data),
+          success: function success(response, xhr) {
+            resolve();
+          },
+          error: function error(err) {
+            reject(err);
+          }
+        });
+      });
+    }
+  }]);
+
+  return RDPSnapshotSelector;
+}(_Hookable5.default);
+
+exports.RDPSnapshotService = RDPSnapshotService;
+exports.RDPSnapshotSelector = RDPSnapshotSelector;
+
+},{"./Hookable":2}],5:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable2 = require('./Hookable');
+
+var _Hookable3 = _interopRequireDefault(_Hookable2);
+
+var _RDPToolbarButton = require('./RDPToolbarButton');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function cmdKeyPressed(e) {
+  return e.ctrlKey || e.metaKey || e.shiftKey || e.altKey;
+}
+
+// RDPClient.RDPToolbar
+
+var RDPToolbar = function (_Hookable) {
+  _inherits(RDPToolbar, _Hookable);
+
+  function RDPToolbar(client) {
+    _classCallCheck(this, RDPToolbar);
+
+    var _this = _possibleConstructorReturn(this, (RDPToolbar.__proto__ || Object.getPrototypeOf(RDPToolbar)).call(this));
+
+    _this.client = client;
+
+    _this.buttons = {
+      fullscreen: new _RDPToolbarButton.RDPToolbarButton(client.$.find('button[name="fullscreen"]'), { client: client }),
+      snapshot: new _RDPToolbarButton.RDPSnapshotButton(client.$.find('button[name="screenshot"]'), { client: client }),
+      control: new _RDPToolbarButton.RDPToolbarButton(client.$.find('button[name="control"]'), { client: client, holdToggle: true })
+
+      // toggle fullscreen mode
+    };_this.buttons.fullscreen.on('click', function () {
+      if (CuckooWeb.isFullscreen()) {
+        CuckooWeb.exitFullscreen();
+      } else {
+        CuckooWeb.requestFullscreen(document.getElementById('rdp-client'));
+      }
+    });
+
+    // make a slight change to the client style to fit into viewport after a
+    // change of fullscreen-ness.
+    CuckooWeb.onFullscreenChange(function (e) {
+      return _this.client.$.toggleClass('fullscreen', CuckooWeb.isFullscreen());
+    });
+
+    // snapshots
+    _this.buttons.snapshot.on('click', function () {
+      var image = _this.client.snapshots.capture();
+      _this.client.snapshots.create(image);
+    });
+
+    // toggles control modes
+    _this.buttons.control.on('toggle', function (toggled) {
+      if (toggled) {
+        // enable mouse and keyboard
+        _this.client.service.mouse(true);
+        _this.client.service.keyboard(true);
+      } else {
+        // disable mouse and keyboard
+        _this.client.service.mouse(false);
+        _this.client.service.keyboard(false);
+      }
+    });
+
+    $('body').on('keydown', function (e) {
+
+      // prevent triggering when in ctrl/alt/shift key modes, usually reserved for browser actions or
+      // OS UX, semantically that should never break so we should prevent it, as well.
+      if (cmdKeyPressed(e)) return;
+
+      // in 'control' mode, we do not do shortcut keys to prioritize keyboard interactions to the vm
+      if (_this.buttons.control.toggled) return;
+
+      switch (e.keyCode) {
+        case 83:
+          _this.buttons.snapshot.dispatchHook('click');
+          _this.buttons.snapshot.blink();
+          break;
+        case 70:
+          _this.buttons.fullscreen.dispatchHook('click');
+          _this.buttons.fullscreen.blink();
+          break;
+        case 67:
+          _this.buttons.control.$.trigger('mousedown');
+          break;
+      }
+    });
+
+    return _this;
+  }
+
+  // lock the entire toolbar with one method calling
+  // button.disable(true).
+
+
+  _createClass(RDPToolbar, [{
+    key: 'disable',
+    value: function disable() {
+      for (var button in this.buttons) {
+        this.buttons[button].disable(true);
+      }
+    }
+
+    // unlock the entire toolbar with one method calling
+    // button.disable(false).
+
+  }, {
+    key: 'enable',
+    value: function enable() {
+      for (var button in this.buttons) {
+        this.buttons[button].disable(false);
+      }
+    }
+  }]);
+
+  return RDPToolbar;
+}(_Hookable3.default);
+
+exports.default = RDPToolbar;
+
+},{"./Hookable":2,"./RDPToolbarButton":6}],6:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.RDPSnapshotButton = exports.RDPToolbarButton = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable2 = require('./Hookable');
+
+var _Hookable3 = _interopRequireDefault(_Hookable2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// RDPClient.RDPToolbarButton
+var RDPToolbarButton = function (_Hookable) {
+  _inherits(RDPToolbarButton, _Hookable);
+
+  function RDPToolbarButton(element) {
+    var conf = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    _classCallCheck(this, RDPToolbarButton);
+
+    var _this = _possibleConstructorReturn(this, (RDPToolbarButton.__proto__ || Object.getPrototypeOf(RDPToolbarButton)).call(this));
+
+    _this.$ = element;
+    _this.client = conf.client;
+    _this.holdToggle = conf.holdToggle || false;
+    _this.toggled = _this.$.hasClass('active');
+    _this.isDisabled = !!_this.$.attr('disabled');
+
+    _this.hooks = {
+      click: [],
+      toggle: [],
+      disabled: []
+
+      // apply basic interaction listeners
+    };_this.$.bind('mousedown', function (e) {
+      _this.dispatchHook('click', {});
+
+      // handle toggle-able buttons correctly
+      if (_this.holdToggle) {
+        _this.$.toggleClass('active');
+        _this.toggled = _this.$.hasClass('active');
+        _this.dispatchHook('toggle', _this.toggled);
+      }
+    });
+
+    return _this;
+  }
+
+  // quick method for disabling buttons
+
+
+  _createClass(RDPToolbarButton, [{
+    key: 'disable',
+    value: function disable(_disable) {
+      if (_disable === undefined) {
+        this.$.prop('disabled', !!this.disabled);
+      } else {
+        this.$.prop('disabled', _disable);
+      }
+
+      this.disabled = this.$.prop('disabled');
+      this.dispatchHook('disabled');
+    }
+
+    // a 'blink' effect to emulate a press visually
+
+  }, {
+    key: 'blink',
+    value: function blink() {
+      var _this2 = this;
+
+      this.$.addClass('active');
+      setTimeout(function () {
+        return _this2.$.removeClass('active');
+      }, 150);
+    }
+  }]);
+
+  return RDPToolbarButton;
+}(_Hookable3.default);
+
+// variety: snapshot button, contains some controls for the graphical
+// enhancemants that come with it.
+
+
+var RDPSnapshotButton = function (_RDPToolbarButton) {
+  _inherits(RDPSnapshotButton, _RDPToolbarButton);
+
+  function RDPSnapshotButton(element) {
+    var conf = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    _classCallCheck(this, RDPSnapshotButton);
+
+    var _this3 = _possibleConstructorReturn(this, (RDPSnapshotButton.__proto__ || Object.getPrototypeOf(RDPSnapshotButton)).call(this, element, conf));
+
+    _this3.$ = _this3.$.parent();
+    return _this3;
+  }
+
+  _createClass(RDPSnapshotButton, [{
+    key: 'update',
+    value: function update() {
+      var _this4 = this;
+
+      var isRemoved = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+
+      var total = this.client.snapshots.total();
+      this.$.find('.button-badge').text(total);
+
+      if (!isRemoved) {
+
+        if (total <= 3) {
+          this.$.find('.ss-v-e-' + total).addClass('in');
+        }
+
+        this.$.find('button').addClass('shutter-in');
+        setTimeout(function () {
+          return _this4.$.find('button').removeClass('shutter-in');
+        }, 1500);
+      } else {
+
+        // this is something that could be done better, but works for now.
+        if (total == 2) this.$.find('.ss-v-e-3').removeClass('in');
+        if (total == 1) this.$.find('.ss-v-e-2').removeClass('in');
+        if (total == 0) {
+          this.$.find('.ss-v-e-1').removeClass('in');
+          this.$.find('.button-badge').text('');
+        }
+      }
+    }
+
+    // litte changes in the disable method for this button, as the $ is not a button.
+
+  }, {
+    key: 'disable',
+    value: function disable(_disable2) {
+      if (_disable2 === undefined) {
+        this.$.find('button').prop('disabled', !!this.disabled);
+      } else {
+        this.$.find('button').prop('disabled', _disable2);
+      }
+
+      this.isDisabled = this.$.find('button').prop('disabled');
+      this.dispatchHook('disabled', this.isDisabled);
+    }
+  }]);
+
+  return RDPSnapshotButton;
+}(RDPToolbarButton);
+
+exports.RDPToolbarButton = RDPToolbarButton;
+exports.RDPSnapshotButton = RDPSnapshotButton;
+
+},{"./Hookable":2}],7:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Hookable2 = require('./Hookable');
+
+var _Hookable3 = _interopRequireDefault(_Hookable2);
+
+var _GuacWrap = require('./GuacWrap');
+
+var _GuacWrap2 = _interopRequireDefault(_GuacWrap);
+
+var _RDPToolbar = require('./RDPToolbar');
+
+var _RDPToolbar2 = _interopRequireDefault(_RDPToolbar);
+
+var _RDPSnapshotService = require('./RDPSnapshotService');
+
+var _RDPDialog = require('./RDPDialog');
+
+var _RDPDialog2 = _interopRequireDefault(_RDPDialog);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+// RDP Client wrapper for collecting all sub classes that belong to this interface
+// - can be treated like a controller. Any processes are catched up on here.
+var RDPClient = function (_Hookable) {
+  _inherits(RDPClient, _Hookable);
+
+  function RDPClient(el) {
+    _classCallCheck(this, RDPClient);
+
+    var _this = _possibleConstructorReturn(this, (RDPClient.__proto__ || Object.getPrototypeOf(RDPClient)).call(this));
+
+    _this.$ = el || null;
+    _this.id = el.data('taskId');
+
+    // alias internal
+    var self = _this;
+    var taskId = _this.id;
+
+    // connect guac service wrapper
+    _this.service = new _GuacWrap2.default({
+      display: el.find('#guacamole-display'),
+      client: _this
+    });
+
+    _this.snapshots = new _RDPSnapshotService.RDPSnapshotService(_this);
+    _this.toolbar = new _RDPToolbar2.default(_this);
+
+    // defines the UI dialogs
+    _this.dialog = new _RDPDialog2.default(_this, {
+      el: el.find('#rdp-dialog'),
+      dialogs: {
+        snapshots: {
+          template: $("template#rdp-dialog-snapshots"),
+          model: {
+            total: function total() {
+              return _this.snapshots.total();
+            }
+          },
+          interactions: {
+            cancel: function cancel(dialog) {
+              dialog.close();
+            },
+            proceed: function proceed(dialog) {
+              // just trigger the form to submit, the event is catched in the render hook
+              dialog.selector.el.submit();
+            }
+          },
+          render: function render(dialog, interaction) {
+
+            dialog.selector = new _RDPSnapshotService.RDPSnapshotSelector(dialog.base.find('form#snapshot-selection-form'), _this.snapshots);
+
+            var updateSelected = function updateSelected() {
+              return dialog.base.find('span[data-model="selected"]').text(dialog.selector.selected.length);
+            };
+
+            dialog.selector.on('submit', function (data) {
+              dialog.selector.commit().then(function () {
+                dialog.close();
+              }, function (err) {
+                console.log(err);
+              });
+            });
+
+            dialog.selector.on('selected', updateSelected);
+            dialog.selector.on('deselected', updateSelected);
+          }
+        },
+        completed: {
+          template: $("template#rdp-dialog-completed"),
+          interactions: {
+            close: function close(dialog) {
+              // the module was rendered in a new tab, closing this page
+              // should take us back to the postsubmit page if still opened.
+              window.close();
+            },
+            report: function report(dialog) {
+              window.location = '/analysis/' + taskId + '/summary/';
+            }
+          }
+        }
+      }
+    });
+
+    // several other 'specific' views, controlled by an 'RDPRender' class.
+    // this class resembles a simple method for spawning different custom views
+    // into the viewport.
+    _this.errorDialog = new _RDPDialog.RDPRender(_this, $("template#rdp-error"));
+    _this.connectingDialog = new _RDPDialog.RDPRender(_this, $("template#rdp-connecting"));
+
+    // show the connection dialog
+    _this.connectingDialog.render();
+
+    // bind snapshot interactions
+    _this.snapshots.on('create', function (snapshot) {
+      _this.toolbar.buttons.snapshot.update();
+    });
+
+    _this.snapshots.bar.on('removed', function () {
+      _this.toolbar.buttons.snapshot.update(true);
+    });
+
+    // initialize service wrapper, wrapped in a timeout to give the UI
+    // a little time to configure itself.
+    setTimeout(function () {
+
+      _this.service.connect();
+
+      _this.service.on('ended', function () {
+        _this.toolbar.disable();
+        el.find('.rdp-status').addClass('done');
+        // if(this.snapshots.total() > 0) {
+        //   let sd = this.dialog.render('snapshots', {
+        //     onClose: () => self.dialog.render('completed')
+        //   });
+        // } else {
+        //   this.dialog.render('completed', {
+        //     beforeRender: () => self.errorDialog ? self.errorDialog.destroy() : function(){}
+        //   });
+        // }
+      });
+
+      // start polling for status updates to cling onto
+      _this.service.checkReady(_this.id, true, 'reported').then(function (isReady, task) {
+
+        if (isReady === true) {
+          // IF SNAPSHOTS, SHOW SNAPSHOT DIALOG, THOUGH
+          if (_this.snapshots.total() > 0) {
+            var sd = _this.dialog.render('snapshots', {
+              onClose: function onClose() {
+                return self.dialog.render('completed');
+              }
+            });
+          } else {
+            _this.dialog.render('completed', {
+              beforeRender: function beforeRender() {
+                return self.errorDialog ? self.errorDialog.destroy() : function () {};
+              }
+            });
+          }
+        }
+      }).catch(function (e) {
+        return console.log(e);
+      });
+
+      // error handler for service wrapper
+      _this.service.on('error', function () {
+        _this.errorDialog.render();
+      });
+    }, 1500);
+
+    _this.commonBindings();
+
+    return _this;
+  }
+
+  // common bindings for non-complicated controls (such as toggling, etc.)
+
+
+  _createClass(RDPClient, [{
+    key: 'commonBindings',
+    value: function commonBindings() {
+      var _this2 = this;
+
+      // property dropdown init
+      var showProperties = function showProperties() {
+
+        var isOpen = false;
+
+        _this2.$.find('#toggle-properties').bind('click', function (e) {
+          e.preventDefault();
+          $(e.currentTarget).toggleClass('active', !isOpen);
+          isOpen = $(e.currentTarget).hasClass('active');
+        });
+
+        $('body').bind('click', function (e) {
+          var el = $(e.target);
+          var partOfDetails = el.parents('.rdp-details').length > 0;
+
+          if (isOpen && !partOfDetails) {
+            _this2.$.find('#toggle-properties').trigger('click');
+          }
+        });
+      };
+
+      showProperties();
+    }
+  }]);
+
+  return RDPClient;
+}(_Hookable3.default);
+
+// initialize the classes and construct the interface
+
+
+$(function () {
+  if ($("#rdp-client").length) {
+    var rdpClient = new RDPClient($("#rdp-client"));
+  }
+});
+
+},{"./GuacWrap":1,"./Hookable":2,"./RDPDialog":3,"./RDPSnapshotService":4,"./RDPToolbar":5}]},{},[7])
+
+
 //# sourceMappingURL=rdp.js.map
