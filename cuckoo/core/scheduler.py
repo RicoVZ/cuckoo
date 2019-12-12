@@ -942,7 +942,8 @@ class Scheduler(object):
                 log.exception("Error force stopping analysis manager: %s", e)
 
         # Shutdown machine manager (used to kill machines that still alive).
-        machinery.shutdown()
+        if machinery:
+            machinery.shutdown()
 
         # Remove network rules if any are present and stop auxiliary modules
         for am in self.analysis_managers:
