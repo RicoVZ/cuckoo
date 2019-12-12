@@ -11524,7 +11524,7 @@ Guacamole.Tunnel.State = {
  *     mechanisms and headers. By default, it is assumed that tunnel requests
  *     will be made to the same domain.
  */
-Guacamole.HTTPTunnel = function(tunnelURL, crossDomain) {
+Guacamole.HTTPTunnel = function(tunnelURL, crossDomain, csrfToken) {
 
     /**
      * Reference to this HTTP tunnel.
@@ -11667,6 +11667,7 @@ Guacamole.HTTPTunnel = function(tunnelURL, crossDomain) {
             message_xmlhttprequest.open("POST", TUNNEL_WRITE + tunnel.uuid);
             message_xmlhttprequest.withCredentials = withCredentials;
             message_xmlhttprequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+            message_xmlhttprequest.setRequestHeader("X-CSRFToken", csrfToken);
 
             // Once response received, send next queued event.
             message_xmlhttprequest.onreadystatechange = function() {
@@ -11897,6 +11898,7 @@ Guacamole.HTTPTunnel = function(tunnelURL, crossDomain) {
         var xmlhttprequest = new XMLHttpRequest();
         xmlhttprequest.open("GET", TUNNEL_READ + tunnel.uuid + ":" + (request_id++));
         xmlhttprequest.withCredentials = withCredentials;
+        xmlhttprequest.setRequestHeader("X-CSRFToken", csrfToken);
         xmlhttprequest.send(null);
 
         return xmlhttprequest;
@@ -11938,6 +11940,7 @@ Guacamole.HTTPTunnel = function(tunnelURL, crossDomain) {
         connect_xmlhttprequest.open("POST", TUNNEL_CONNECT, true);
         connect_xmlhttprequest.withCredentials = withCredentials;
         connect_xmlhttprequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+        connect_xmlhttprequest.setRequestHeader("X-CSRFToken", csrfToken);
         connect_xmlhttprequest.send(data);
 
     };
