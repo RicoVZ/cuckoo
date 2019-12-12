@@ -63,7 +63,8 @@ var GuacamoleWrapper = function (_Hookable) {
       var _this2 = this;
 
       // create the client
-      var tunnel = new Guacamole.HTTPTunnel("tunnel/");
+      var csrf = document.querySelector('.csrf_placeholder input').value;
+      var tunnel = new Guacamole.HTTPTunnel("tunnel/", undefined, csrf);
       var guac = this.client = new Guacamole.Client(tunnel);;
 
       // create the display
@@ -207,7 +208,7 @@ var GuacamoleWrapper = function (_Hookable) {
               dataType: 'json',
               contentType: "application/json; charset=utf-8",
               headers: {
-                'X-CSRF-Token': csrf
+                'X-CSRFToken': csrf
               },
               data: JSON.stringify({
                 "task_ids": [id]
