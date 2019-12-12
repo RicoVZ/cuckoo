@@ -1506,8 +1506,7 @@ class Database(object):
         """
         session = self.Session()
         try:
-            task = session.query(Task).get(task_id)
-            session.delete(task)
+            session.query(Task).filter_by(id=task_id).delete()
             session.commit()
         except SQLAlchemyError as e:
             log.exception("Database error deleting task: {0}".format(e))
