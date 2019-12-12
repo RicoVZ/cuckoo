@@ -85,7 +85,8 @@ class Sniffer(Auxiliary):
 
         try:
             self.proc = Popen(
-                pargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True
+                pargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                close_fds=True
             )
         except (OSError, ValueError):
             log.exception(
@@ -93,6 +94,13 @@ class Sniffer(Auxiliary):
                 self.machine.interface, self.machine.ip, file_path,
             )
             return False
+
+        if self.proc and self.proc.poll():
+            out, err = self.proc.communicate()
+            raise CuckooOperationalError(
+                "Tcpdump exited immediately after starting. Exit code: %s "
+                "Stdout: %r. Stderr: %r." % (self.proc.poll(), out, err)
+            )
 
         log.info(
             "Started sniffer with PID %d (interface=%s, host=%s)",
