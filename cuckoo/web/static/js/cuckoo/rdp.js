@@ -63,8 +63,7 @@ var GuacamoleWrapper = function (_Hookable) {
       var _this2 = this;
 
       // create the client
-      var csrf = document.querySelector('.csrf_placeholder input').value;
-      var tunnel = new Guacamole.HTTPTunnel("tunnel/", undefined, csrf);
+      var tunnel = new Guacamole.HTTPTunnel("tunnel/");
       var guac = this.client = new Guacamole.Client(tunnel);;
 
       // create the display
@@ -86,8 +85,8 @@ var GuacamoleWrapper = function (_Hookable) {
         if (state == 2) {
           _this2.dispatchHook('ended');
         }
-
       };
+
       guac.connect();
       this.dispatchHook('connect', guac);
     }
@@ -208,7 +207,7 @@ var GuacamoleWrapper = function (_Hookable) {
               dataType: 'json',
               contentType: "application/json; charset=utf-8",
               headers: {
-                'X-CSRFToken': csrf
+                'X-CSRF-Token': csrf
               },
               data: JSON.stringify({
                 "task_ids": [id]
