@@ -5,6 +5,7 @@
 
   <section class="rdp-app" id="rdp-client" allowfullscreen data-task-id="{{ task.id }}">
     <div class="rdp-app__display">
+
       {% include 'rdp/partials/rdp-header.html' %}
       {% include 'rdp/partials/rdp-viewport.html' %}
       {% include 'rdp/dialogs/rdp-dialog.html' %}
@@ -13,5 +14,7 @@
       {% include 'rdp/partials/rdp-toolbar.html' %}
     </aside>
   </section>
+
+  <div class="hidden csrf_placeholder" id="analysis_token">{% csrf_token %}</div>
 
 {% endblock %}

@@ -161,7 +161,8 @@ class GuacamoleWrapper extends Hookable {
           dataType: 'json',
           contentType: "application/json; charset=utf-8",
           data: JSON.stringify({
-            "task_ids": [id]
+            "task_ids": [id],
+            'csrfmiddlewaretoken': document.querySelector('.csrf_placeholder input').value
           }),
           success: (response, xhr) => {
             if(response.status === true) {
