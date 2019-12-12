@@ -3,6 +3,7 @@
 # See the file 'docs/LICENSE' for copying permission.
 
 from __future__ import absolute_import
+from distutils.version import LooseVersion
 
 import datetime
 import json
@@ -43,6 +44,15 @@ class ElasticSearch(Report):
         except CuckooOperationalError as e:
             raise CuckooReportError(
                 "Error running ElasticSearch reporting module: %s" % e
+            )
+
+        info = elastic.client.info()
+        version = info.get("version", {}).get("number")
+        if version and LooseVersion(version) >= LooseVersion("6"):
+            raise CuckooOperationalError(
+                "Cuckoo currently does not (yet) support any Elasticsearch "
+                "versions newer than 5. Your version is: %s. "
+                "Later versions will be supported in the future." % version
             )
 
         # check to see if the template exists apply it if it does not
