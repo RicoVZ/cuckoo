@@ -133,7 +133,8 @@ def test_sniffer():
     # Test permission denied on tcpdump.
     with mock.patch("subprocess.Popen") as p:
         p.return_value = PopenPermissionDenied()
-        assert s.start() is True
+        with pytest.raises(CuckooOperationalError):
+            s.start()
 
     with pytest.raises(CuckooOperationalError) as e:
         assert s.stop()
