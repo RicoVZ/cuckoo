@@ -73,8 +73,10 @@ def test_init_modules(p, q, r, s):
     set_cwd(tempfile.mkdtemp())
     cuckoo_create()
     load_signatures()
-
     logs = []
+    client = mock.MagicMock()
+    client.info.return_value = {"version" : { "number": "5.2.1"}}
+    r.client = client
 
     def log(fmt, *args):
         logs.append(fmt % args if args else fmt)

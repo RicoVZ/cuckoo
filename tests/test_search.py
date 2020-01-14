@@ -12,6 +12,7 @@ from cuckoo.common.objects import File
 from cuckoo.main import cuckoo_create
 from cuckoo.misc import set_cwd
 from cuckoo.reporting.mongodb import MongoDB
+from cuckoo.reporting.elasticsearch import ElasticSearch
 
 def test_mongo_init_nouser():
     set_cwd(tempfile.mkdtemp())
@@ -187,3 +188,57 @@ def test_elastic_connect_enabled(p):
     e.init()
     e.connect()
     p.assert_called_once_with(["127.0.0.1"], timeout=300)
+
+@mock.patch("cuckoo.reporting.elasticsearch.log")
+@mock.patch("cuckoo.reporting.elasticsearch.elastic")
+def test_elasticsearch_supportedversion(p, q):
+    set_cwd(tempfile.mkdtemp())
+    cuckoo_create(cfg={
+        "reporting": {
+            "elasticsearch": {
+                "enabled": False,
+            },
+        },
+    })
+
+    logs = []
+    def error(fmt, *args):
+        logs.append(fmt % args if args else fmt)
+
+    q.error = error
+
+    client = mock.MagicMock()
+    client.info.return_value = {"version": {"number": "5.2.1"}}
+    p.client = client
+    ElasticSearch().init_once()
+
+    logs = "\n".join(logs)
+    assert "does not (yet) support any Elasticsearch " \
+           "versions newer than 5" not in logs
+
+@mock.patch("cuckoo.reporting.elasticsearch.log")
+@mock.patch("cuckoo.reporting.elasticsearch.elastic")
+def test_elasticsearch_unsupportedversion(p, q):
+    set_cwd(tempfile.mkdtemp())
+    cuckoo_create(cfg={
+        "reporting": {
+            "elasticsearch": {
+                "enabled": False,
+            },
+        },
+    })
+
+    logs = []
+    def error(fmt, *args):
+        logs.append(fmt % args if args else fmt)
+
+    q.error = error
+
+    client = mock.MagicMock()
+    client.info.return_value = {"version": {"number": "6.2.1"}}
+    p.client = client
+    ElasticSearch().init_once()
+
+    logs = "\n".join(logs)
+    assert "does not (yet) support any Elasticsearch " \
+           "versions newer than 5" in logs
