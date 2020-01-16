@@ -190,7 +190,7 @@ do_setup(
         "beautifulsoup4==4.5.3",
         "chardet==2.3.0",
         "click==6.6",
-        "cryptography",
+        "cryptography=>2.7, <3.0",
         "django==1.8.4",
         "django_extensions==1.6.7",
         "dpkt==1.8.7",
