@@ -29,11 +29,10 @@ from cuckoo.common.utils import convert_to_printable, to_unicode, jsbeautify
 from cuckoo.core.extract import ExtractManager
 from cuckoo.misc import cwd, dispatch
 
-import cryptography
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.backends.openssl import x509
 from cryptography.hazmat.primitives import hashes
-
+from cryptography.x509 import extensions
 from elftools.common.exceptions import ELFError
 from elftools.elf.constants import E_FLAGS
 from elftools.elf.descriptions import (
@@ -266,45 +265,86 @@ class PortableExecutable(object):
         for i in range(backend._lib.sk_X509_num(signers)):
             x509_ptr = backend._lib.sk_X509_value(signers, i)
             certs.append(x509._Certificate(backend, x509_ptr))
+
         for cert in certs:
-            md5 = binascii.hexlify(cert.fingerprint(hashes.MD5())).decode()
-            sha1 = binascii.hexlify(cert.fingerprint(hashes.SHA1())).decode()
-            sha256 = binascii.hexlify(cert.fingerprint(hashes.SHA256())).decode()
-            cert_data = {'md5': md5, 'sha1': sha1, 'sha256': sha256, 'serial_number': str(cert.serial_number)}
+            cert_data = {
+                "md5": binascii.hexlify(
+                    cert.fingerprint(hashes.MD5())
+                ).decode(),
+                "sha1": binascii.hexlify(
+                    cert.fingerprint(hashes.SHA1())
+                ).decode(),
+                "sha256": binascii.hexlify(
+                    cert.fingerprint(hashes.SHA256())
+                ).decode(),
+                "serial_number": str(cert.serial_number)
+            }
+
             for attribute in cert.subject:
-                cert_data['subject_{}'.format(attribute.oid._name)] = attribute.value
+                cert_data["subject_{}".format(
+                    attribute.oid._name
+                )] = attribute.value
+
             for attribute in cert.issuer:
-                cert_data['issuer_{}'.format(attribute.oid._name)] = attribute.value
+                cert_data["issuer_{}".format(
+                    attribute.oid._name
+                )] = attribute.value
+
             try:
                 for extension in cert.extensions:
-                    if extension.oid._name == 'authorityKeyIdentifier':
-                        cert_data['extensions_{}'.format(extension.oid._name)] = base64.b64encode(extension.value.key_identifier)
-                    elif extension.oid._name == 'subjectKeyIdentifier':
-                        cert_data['extensions_{}'.format(extension.oid._name)] = base64.b64encode(extension.value.digest)
-                    elif extension.oid._name == 'certificatePolicies':
+                    if extension.oid._name == "authorityKeyIdentifier":
+                        cert_data["extensions_{}".format(
+                            extension.oid._name
+                        )] = base64.b64encode(extension.value.key_identifier)
+
+                    elif extension.oid._name == "subjectKeyIdentifier":
+                        cert_data["extensions_{}".format(
+                            extension.oid._name
+                        )] = base64.b64encode(extension.value.digest)
+
+                    elif extension.oid._name == "certificatePolicies":
                         for index, policy in enumerate(extension.value):
                             if policy.policy_qualifiers:
                                 for qualifier in policy.policy_qualifiers:
-                                    if qualifier.__class__ is not cryptography.x509.extensions.UserNotice:
-                                        cert_data['extensions_{}_{}'.format(extension.oid._name, index)] = qualifier
-                    elif extension.oid._name == 'cRLDistributionPoints':
+                                    q_class = qualifier.__class__
+                                    if q_class is not extensions.UserNotice:
+                                        cert_data["extensions_{}_{}".format(
+                                            extension.oid._name, index
+                                        )] = qualifier
+
+                    elif extension.oid._name == "cRLDistributionPoints":
                         for index, point in enumerate(extension.value):
                             for full_name in point.full_name:
-                                cert_data['extensions_{}_{}'.format(extension.oid._name, index)] = full_name.value
-                    elif extension.oid._name == 'authorityInfoAccess':
+                                cert_data["extensions_{}_{}".format(
+                                    extension.oid._name, index
+                                )] = full_name.value
+
+                    elif extension.oid._name == "authorityInfoAccess":
                         for authority_info in extension.value:
-                            if authority_info.access_method._name == 'caIssuers':
-                                cert_data['extensions_{}_caIssuers'.format(extension.oid._name)] = authority_info.access_location.value
-                            elif authority_info.access_method._name == 'OCSP':
-                                cert_data['extensions_{}_OCSP'.format(extension.oid._name)] = authority_info.access_location.value
-                    elif extension.oid._name == 'subjectAltName':
+                            if authority_info.access_method._name == "caIssuers":
+                                cert_data["extensions_{}_caIssuers".format(
+                                    extension.oid._name
+                                )] = authority_info.access_location.value
+
+                            elif authority_info.access_method._name == "OCSP":
+                                cert_data["extensions_{}_OCSP".format(
+                                    extension.oid._name
+                                )] = authority_info.access_location.value
+
+                    elif extension.oid._name == "subjectAltName":
                         for index, name in enumerate(extension.value._general_names):
                             if isinstance(name.value, bytes):
-                                cert_data['extensions_{}_{}'.format(extension.oid._name, index)] = base64.b64encode(name.value)
+                                cert_data["extensions_{}_{}".format(
+                                    extension.oid._name, index
+                                )] = base64.b64encode(name.value)
                             else:
-                                cert_data['extensions_{}_{}'.format(extension.oid._name, index)] = name.value
+                                cert_data["extensions_{}_{}".format(
+                                    extension.oid._name, index
+                                )] = name.value
+
             except ValueError:
                 continue
+
             ret.append(cert_data)
 
         return ret
