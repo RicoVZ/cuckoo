@@ -98,7 +98,7 @@ after_success:
   - coveralls
   - codecov
 
-dist: xenial
+dist: bionic
 addons:
   apt:
     packages:
