@@ -1089,7 +1089,7 @@ def test_mongodb_offline(p, q, r, s):
     s.warning.assert_called_once()
 
 @pytest.mark.skipif("sys.platform != 'linux2'")
-class TestMongoInteraction(object):
+class TestMongoTasksRecent(object):
     @classmethod
     def setup_class(cls):
         set_cwd(tempfile.mkdtemp())
@@ -1104,165 +1104,178 @@ class TestMongoInteraction(object):
         mongo.init()
         mongo.connect()
 
-    class TestTasksRecent(object):
-        @classmethod
-        def setup_class(cls):
-            tasks = [
-                (1, "file", "exe", "target.exe", 8, "thisisamd5"),
-                (2, "url", "ie", "http://google.com/", 2, None),
-                (3, "file", "doc", "malicious.doc", 11, "anothermd5"),
-                (4, "file", "vbs", "foo.vbs", 0, "didnothing"),
-                (5, "file", "xls", "bar.xls", 7, "verymalicious"),
-                (6, "archive", "pdf", "pdf0.zip", 3, "amd5"),
-            ]
+        tasks = [
+            (1, "file", "exe", "target.exe", 8, "thisisamd5"),
+            (2, "url", "ie", "http://google.com/", 2, None),
+            (3, "file", "doc", "malicious.doc", 11, "anothermd5"),
+            (4, "file", "vbs", "foo.vbs", 0, "didnothing"),
+            (5, "file", "xls", "bar.xls", 7, "verymalicious"),
+            (6, "archive", "pdf", "pdf0.zip", 3, "amd5"),
+        ]
 
-            for id_, category, package, target, score, md5 in tasks:
-                d = {
-                    "info": {
-                        "id": id_,
-                        "category": category,
-                        "package": package,
-                        "score": score,
+        for id_, category, package, target, score, md5 in tasks:
+            d = {
+                "info": {
+                    "id": id_,
+                    "category": category,
+                    "package": package,
+                    "score": score,
+                },
+            }
+            if category == "url":
+                d["target"] = {
+                    "category": "url",
+                    "url": target,
+                }
+            elif category == "archive":
+                d["target"] = {
+                    "category": "archive",
+                    "archive": {},
+                    "filename": "pdf0.pdf",
+                    "human": "pdf0.pdf @ pdf0.zip",
+                }
+            else:
+                d["target"] = {
+                    "category": "file",
+                    "file": {
+                        "name": target,
+                        "md5": md5,
                     },
                 }
-                if category == "url":
-                    d["target"] = {
-                        "category": "url",
-                        "url": target,
-                    }
-                elif category == "archive":
-                    d["target"] = {
-                        "category": "archive",
-                        "archive": {},
-                        "filename": "pdf0.pdf",
-                        "human": "pdf0.pdf @ pdf0.zip",
-                    }
-                else:
-                    d["target"] = {
-                        "category": "file",
-                        "file": {
-                            "name": target,
-                            "md5": md5,
-                        },
-                    }
-                mongo.db.analysis.save(d)
+            mongo.db.analysis.insert_one(d)
 
-            # Handle analyses that somehow don't have a "target" field.
-            mongo.db.analysis.save({
-                "info": {
-                    "id": 999,
-                    "category": "archive",
+        # Handle analyses that somehow don't have a "target" field.
+        mongo.db.analysis.insert_one({
+            "info": {
+                "id": 999,
+                "category": "archive",
+            },
+        })
+
+    def req(self, client, **kw):
+        return client.post(
+            "/analysis/api/tasks/recent/",
+            json.dumps(kw),
+            "application/json",
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+
+    def test_normal(self, client):
+        r = self.req(client)
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 7
+        assert obj["tasks"][1]["id"] == 6
+        assert obj["tasks"][1]["target"] == "pdf0.pdf @ pdf0.zip"
+        assert obj["tasks"][6]["id"] == 1
+        assert obj["tasks"][6]["target"] == "target.exe"
+
+    def test_limit2(self, client):
+        r = self.req(client, limit=2)
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 2
+
+    def test_score_5_10(self, client):
+        r = self.req(client, score="5-10")
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 3
+        assert obj["tasks"][0]["id"] == 5
+        assert obj["tasks"][1]["id"] == 3
+        assert obj["tasks"][2]["id"] == 1
+
+    def test_file_category(self, client):
+        r = self.req(client, cats=["file"])
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 4
+
+    def test_archive_category(self, client):
+        r = self.req(client, cats=["archive"])
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 2
+
+    def test_doc_packages(self, client):
+        r = self.req(client, packs=["doc", "vbs", "xls", "js"])
+        assert r.status_code == 200
+        obj = json.loads(r.content)
+        assert len(obj["tasks"]) == 3
+
+    def test_invld_limit(self, client):
+        r = self.req(client, limit="notanint")
+        assert r.status_code == 501
+        assert "invalid limit" in r.content
+
+    def test_invld_offset(self, client):
+        r = self.req(client, offset="notanint")
+        assert r.status_code == 501
+        assert "invalid offset" in r.content
+
+    def test_invld_score(self, client):
+        assert self.req(client, score="!!").status_code == 501
+        assert self.req(client, score="1-11").status_code == 501
+        assert self.req(client, score="11-9").status_code == 501
+        assert self.req(client, score="1--3").status_code == 501
+        assert self.req(client, score="1-a").status_code == 501
+
+    def test_invld_categories(self, client):
+        assert self.req(client, cats="file").status_code == 501
+        assert self.req(client, cats=["file", 1]).status_code == 501
+        assert self.req(client, cats=["file"]).status_code == 200
+
+    def test_invld_packages(self, client):
+        assert self.req(client, packs="exe").status_code == 501
+        assert self.req(client, packs=["doc", 1]).status_code == 501
+        assert self.req(client, packs=["xls", "doc"]).status_code == 200
+
+@pytest.mark.skipif("sys.platform != 'linux2'")
+class TestMongoFile(object):
+
+    @classmethod
+    def setup_class(cls):
+        set_cwd(tempfile.mkdtemp())
+        cuckoo_create(cfg={
+            "reporting": {
+                "mongodb": {
+                    "enabled": True,
+                    "db": "cuckootest",
                 },
-            })
+            },
+        })
+        mongo.init()
+        mongo.connect()
 
-        def req(self, client, **kw):
-            return client.post(
-                "/analysis/api/tasks/recent/",
-                json.dumps(kw),
-                "application/json",
-                HTTP_X_REQUESTED_WITH="XMLHttpRequest"
-            )
+    def test_empty(self, client):
+        r = client.get("/file/screenshots//")
+        assert r.status_code == 500
 
-        def test_normal(self, client):
-            r = self.req(client)
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 7
-            assert obj["tasks"][1]["id"] == 6
-            assert obj["tasks"][1]["target"] == "pdf0.pdf @ pdf0.zip"
-            assert obj["tasks"][6]["id"] == 1
-            assert obj["tasks"][6]["target"] == "target.exe"
+        r = client.get("/file/screenshots//nofetch/")
+        assert r.status_code == 500
 
-        def test_limit2(self, client):
-            r = self.req(client, limit=2)
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 2
+    def test_invalid(self, client):
+        with pytest.raises(pymongo.errors.InvalidId):
+            client.get("/file/screenshots/hello/")
 
-        def test_score_5_10(self, client):
-            r = self.req(client, score="5-10")
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 3
-            assert obj["tasks"][0]["id"] == 5
-            assert obj["tasks"][1]["id"] == 3
-            assert obj["tasks"][2]["id"] == 1
+    def test_404(self, client):
+        with pytest.raises(gridfs.errors.NoFile):
+            client.get("/file/screenshots/%s/" % ("A"*24))
 
-        def test_file_category(self, client):
-            r = self.req(client, cats=["file"])
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 4
+    def test_has_file(self, client):
+        data = os.urandom(32)
 
-        def test_archive_category(self, client):
-            r = self.req(client, cats=["archive"])
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 2
+        obj = mongo.grid.new_file(
+            filename="dump.pcap",
+            contentType="application/vnd.tcpdump.pcap",
+            sha256=hashlib.sha256(data).hexdigest()
+        )
+        obj.write(data)
+        obj.close()
 
-        def test_doc_packages(self, client):
-            r = self.req(client, packs=["doc", "vbs", "xls", "js"])
-            assert r.status_code == 200
-            obj = json.loads(r.content)
-            assert len(obj["tasks"]) == 3
-
-        def test_invld_limit(self, client):
-            r = self.req(client, limit="notanint")
-            assert r.status_code == 501
-            assert "invalid limit" in r.content
-
-        def test_invld_offset(self, client):
-            r = self.req(client, offset="notanint")
-            assert r.status_code == 501
-            assert "invalid offset" in r.content
-
-        def test_invld_score(self, client):
-            assert self.req(client, score="!!").status_code == 501
-            assert self.req(client, score="1-11").status_code == 501
-            assert self.req(client, score="11-9").status_code == 501
-            assert self.req(client, score="1--3").status_code == 501
-            assert self.req(client, score="1-a").status_code == 501
-
-        def test_invld_categories(self, client):
-            assert self.req(client, cats="file").status_code == 501
-            assert self.req(client, cats=["file", 1]).status_code == 501
-            assert self.req(client, cats=["file"]).status_code == 200
-
-        def test_invld_packages(self, client):
-            assert self.req(client, packs="exe").status_code == 501
-            assert self.req(client, packs=["doc", 1]).status_code == 501
-            assert self.req(client, packs=["xls", "doc"]).status_code == 200
-
-    class TestFile(object):
-        def test_empty(self, client):
-            r = client.get("/file/screenshots//")
-            assert r.status_code == 500
-
-            r = client.get("/file/screenshots//nofetch/")
-            assert r.status_code == 500
-
-        def test_invalid(self, client):
-            with pytest.raises(pymongo.errors.InvalidId):
-                client.get("/file/screenshots/hello/")
-
-        def test_404(self, client):
-            with pytest.raises(gridfs.errors.NoFile):
-                client.get("/file/screenshots/%s/" % ("A"*24))
-
-        def test_has_file(self, client):
-            data = os.urandom(32)
-
-            obj = mongo.grid.new_file(
-                filename="dump.pcap",
-                contentType="application/vnd.tcpdump.pcap",
-                sha256=hashlib.sha256(data).hexdigest()
-            )
-            obj.write(data)
-            obj.close()
-
-            r = client.get("/file/something/%s/nofetch/" % obj._id)
-            assert r.status_code == 200
-            assert r.content == data
+        r = client.get("/file/something/%s/nofetch/" % obj._id)
+        assert r.status_code == 200
+        assert r.content == data
 
 class TestApiEndpoints(object):
     @mock.patch("os.unlink")
