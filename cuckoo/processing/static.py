@@ -267,6 +267,8 @@ class PortableExecutable(object):
             certs.append(x509._Certificate(backend, x509_ptr))
 
         for cert in certs:
+            subject = {}
+            issuer = {}
             cert_data = {
                 "md5": binascii.hexlify(
                     cert.fingerprint(hashes.MD5())
@@ -277,18 +279,10 @@ class PortableExecutable(object):
                 "sha256": binascii.hexlify(
                     cert.fingerprint(hashes.SHA256())
                 ).decode(),
-                "serial_number": str(cert.serial_number)
+                "serial_number": str(cert.serial_number),
+                "subject": {attr.oid._name:attr.value for attr in cert.subject},
+                "issuer": {attr.oid._name:attr.value for attr in cert.issuer},
             }
-
-            for attribute in cert.subject:
-                cert_data["subject_{}".format(
-                    attribute.oid._name
-                )] = attribute.value
-
-            for attribute in cert.issuer:
-                cert_data["issuer_{}".format(
-                    attribute.oid._name
-                )] = attribute.value
 
             try:
                 for extension in cert.extensions:

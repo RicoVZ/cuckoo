@@ -53,43 +53,43 @@
                     </tr>
                     <tr>
                         <th>Subject Common Name</th>
-                        <td>{{cert.subject_commonName}}</td>
+                        <td>{{cert.subject.commonName}}</td>
                     </tr>
                     <tr>
                         <th>Subject Organization Name</th>
-                        <td>{{cert.subject_organizationName}}</td>
+                        <td>{{cert.subject.organizationName}}</td>
                     </tr>
 		    <tr>
 			<th>Subject Organization Unit Name</th>
-			<td>{{cert.subject_organizationalUnitName}}</td>
+			<td>{{cert.subject.organizationalUnitName}}</td>
 		    </tr>
                     <tr>
                         <th>Subject Street Address</th>
-                        <td>{{cert.subject_streetAddress}}</td>
+                        <td>{{cert.subject.streetAddress}}</td>
                     </tr>
                     <tr>
                         <th>Subject Locality</th>
-                        <td>{{cert.subject_localityName}}</td>
+                        <td>{{cert.subject.localityName}}</td>
                     </tr>
                     <tr>
 			<th>Subject State or Province</th>
-                        <td>{{cert.subject_stateOrProvinceName}}</td>
+                        <td>{{cert.subject.stateOrProvinceName}}</td>
                     </tr>
                     <tr>
                         <th>Subject Postal Code</th>
-                        <td>{{cert.subject_postalCode}}</td>
+                        <td>{{cert.subject.postalCode}}</td>
                     </tr>
                     <tr>
                         <th>Subject Country</th>
-                        <td>{{cert.subject_countryName}}</td>
+                        <td>{{cert.subject.countryName}}</td>
                     </tr>
                     <tr>
                         <th>Issuer Common Name</th>
-                        <td>{{cert.issuer_commonName}}</td>
+                        <td>{{cert.issuer.commonName}}</td>
                     </tr>
                     <tr>
                         <th>Issuer Organization Name</th>
-                        <td>{{cert.issuer_organizationName}}</td>
+                        <td>{{cert.issuer.organizationName}}</td>
                     </tr>
 		    <tr>
 			<th>Issuer Organization Unit Name</th>
@@ -97,15 +97,15 @@
 		    </tr>
                     <tr>
                         <th>Issuer Locality</th>
-                        <td>{{cert.issuer_localityName}}</td>
+                        <td>{{cert.issuer.localityName}}</td>
                     </tr>
                     <tr>
                         <th>Issuer State or Province</th>
-                        <td>{{cert.issuer_stateOrProvinceName}}</td>
+                        <td>{{cert.issuer.stateOrProvinceName}}</td>
                     </tr>                                                                       
                     <tr>
                         <th>Issuer Country</th>
-                        <td>{{cert.issuer_countryName}}</td>
+                        <td>{{cert.issuer.countryName}}</td>
                     </tr>
                 </table>
                 {% endfor %}
