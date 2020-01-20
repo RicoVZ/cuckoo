@@ -116,30 +116,42 @@ def test_regex():
 
 @pytest.mark.skipif("sys.platform != 'linux2'")
 def test_pesignature():
+    subject = {
+        "commonName": "Microsoft Corporation",
+        "countryName": "US",
+        "localityName": "Redmond",
+        "organizationName": "Microsoft Corporation",
+        "organizationalUnitName": "MOPR",
+        "stateOrProvinceName": "Washington"
+    }
+
+    issuer = {
+        "commonName": "Microsoft Code Signing PCA",
+        "countryName": "US",
+        "localityName": "Redmond",
+        "organizationName": "Microsoft Corporation",
+        "stateOrProvinceName": "Washington",
+    }
+
     expected = {
          "extensions_authorityInfoAccess_caIssuers": "http://www.microsoft.com/pki/certs/CSPCA.crt",
          "extensions_authorityKeyIdentifier": "zB3OdgBwW6/x2sROmlFELqNEY/A=",
          "extensions_cRLDistributionPoints_0": "http://crl.microsoft.com/pki/crl/products/CSPCA.crl",
          "extensions_subjectKeyIdentifier": "I9FzKky9++Uh+nEemRXRF/nEpoo=",
-         "issuer_commonName": "Microsoft Code Signing PCA",
-         "issuer_countryName": "US",
-         "issuer_localityName": "Redmond",
-         "issuer_organizationName": "Microsoft Corporation",
-         "issuer_stateOrProvinceName": "Washington",
          "md5": "3f5fafb22a46352684c4ae521d02c3c7",
          "serial_number": "458183075859237317902344",
          "sha1": "9e95c625d81b2ba9c72fd70275c3699613af61e3",
          "sha256": "50af9f524fa685449e1258412e18c6214539971cbe481801b901fd3bcb846991",
-         "subject_commonName": "Microsoft Corporation",
-         "subject_countryName": "US",
-         "subject_localityName": "Redmond",
-         "subject_organizationName": "Microsoft Corporation",
-         "subject_organizationalUnitName": "MOPR",
-         "subject_stateOrProvinceName": "Washington"
     }
 
     pe = PortableExecutable("tests/files/icardres.dll")
     sig0 = pe.run()["signature"][0]
+
+    for key, val in subject.iteritems():
+        assert sig0["subject"][key] == val
+
+    for key, val in issuer.iteritems():
+        assert sig0["issuer"][key] == val
 
     for key, val in expected.iteritems():
         assert sig0[key] == val
