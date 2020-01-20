@@ -15,6 +15,7 @@ from lib.common.results import NetlogFile
 log = logging.getLogger(__name__)
 
 SHOT_DELAY = 1
+MAX_RMS = 25
 
 # Skip the following area when comparing screen shots.
 # Example for 800x600 screen resolution.
@@ -28,6 +29,25 @@ class Screenshots(threading.Thread, Auxiliary):
         threading.Thread.__init__(self)
         Auxiliary.__init__(self, options, analyzer)
         self.do_run = True
+        self.delay = SHOT_DELAY
+        self.max_rms = MAX_RMS
+
+    def init(self):
+        delay = self.options.get("screenshot.delay", 0)
+        if delay:
+            try:
+                delay = int(delay)
+                self.delay = delay
+            except ValueError:
+                log.error("Invalid screenshot delay specified: %s", delay)
+
+        max_rms = self.options.get("screenshot.max_rms", 0)
+        if max_rms:
+            try:
+                max_rms = int(max_rms)
+                self.max_rms = max_rms
+            except ValueError:
+                log.error("Invalid screenshot max rms specified: %s", max_rms)
 
     def stop(self):
         """Stop screenshotting."""
@@ -37,9 +57,6 @@ class Screenshots(threading.Thread, Auxiliary):
         """Run screenshotting.
         @return: operation status.
         """
-        if "screenshots" in self.options:
-            self.do_run = int(self.options["screenshots"])
-
         scr = Screenshot()
 
         # TODO We should also send the action "pillow" so that the Web
@@ -63,7 +80,9 @@ class Screenshots(threading.Thread, Auxiliary):
                 log.error("Cannot take screenshot: %s", e)
                 continue
 
-            if img_last and scr.equal(img_last, img_current, SKIP_AREA):
+            if img_last and scr.equal(
+                    img_last, img_current, SKIP_AREA, self.max_rms
+            ):
                 continue
 
             img_counter += 1
@@ -74,14 +93,13 @@ class Screenshots(threading.Thread, Auxiliary):
             tmpio.seek(0)
 
             # now upload to host from the StringIO
-            try:
-                nf = NetlogFile()
-                nf.init("shots/%04d.jpg" % img_counter)
+            nf = NetlogFile()
+            nf.init("shots/%04d.jpg" % img_counter)
 
-                for chunk in tmpio:
-                    nf.sock.sendall(chunk)
-            finally:
-                nf.close()
+            for chunk in tmpio:
+                nf.sock.sendall(chunk)
+
+            nf.close()
 
             img_last = img_current
 

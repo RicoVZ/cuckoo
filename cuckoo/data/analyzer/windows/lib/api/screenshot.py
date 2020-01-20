@@ -1,5 +1,5 @@
 # Copyright (C) 2010-2013 Claudio Guarnieri.
-# Copyright (C) 2014-2016 Cuckoo Foundation.
+# Copyright (C) 2014-2020 Cuckoo Foundation.
 # This file is part of Cuckoo Sandbox - http://www.cuckoosandbox.org
 # See the file 'docs/LICENSE' for copying permission.
 
@@ -38,7 +38,7 @@ class Screenshot:
         """
         return HAVE_PIL
 
-    def equal(self, img1, img2, skip_area=None):
+    def equal(self, img1, img2, skip_area=None, max_rms=8):
         """Compares two screenshots using Root-Mean-Square Difference (RMS).
         @param img1: screenshot to compare.
         @param img2: screenshot to compare.
@@ -47,9 +47,9 @@ class Screenshot:
         if not HAVE_PIL:
             return None
 
-        # Trick to avoid getting a lot of screen shots only because the time in the windows
-        # clock is changed.
-        # We draw a black rectangle on the coordinates where the clock is locates, and then
+        # Trick to avoid getting a lot of screen shots only because the time
+        # in the windows clock is changed. We draw a black rectangle on the
+        # coordinates where the clock is locates, and then
         # run the comparison.
         # NOTE: the coordinates are changing with VM screen resolution.
         if skip_area:
@@ -70,7 +70,7 @@ class Screenshot:
         rms = math.sqrt(sum_of_squares/float(img1.size[0] * img1.size[1]))
 
         # Might need to tweak the threshold.
-        return rms < 8
+        return rms < max_rms
 
     def take(self):
         """Take a screenshot.
